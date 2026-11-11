@@ -48,7 +48,7 @@ export function buildReportDocument({
     <title>${escapeHtml(title)}</title>
     <style>
       @font-face {
-        font-family: 'Vnite Report';
+        font-family: 'Skyoo Report';
         src: url('${escapeCssUrl(fontSource)}') format('woff2');
         font-weight: 400;
         font-style: normal;

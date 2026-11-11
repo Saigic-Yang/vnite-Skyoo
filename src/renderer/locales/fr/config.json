@@ -1,5 +1,5 @@
 {
-  "title": "Paramètres de Vnite",
+  "title": "Paramètres de Skyoo",
   "general": {
     "title": "Général",
     "language": "Langue",
@@ -15,7 +15,7 @@
     "languageDescription": "Choisissez la langue d'affichage pour l'application",
     "openAtLoginDescription": "Ouvrir automatiquement l'application au démarrage du système",
     "showWindowAfterGameExit": "Afficher la fenêtre principale après la fermeture du jeu",
-    "showWindowAfterGameExitDescription": "Afficher automatiquement la fenêtre principale de Vnite et la mettre au premier plan après la fermeture d'un jeu"
+    "showWindowAfterGameExitDescription": "Afficher automatiquement la fenêtre principale de Skyoo et la mettre au premier plan après la fermeture d'un jeu"
   },
   "appearances": {
     "title": "",

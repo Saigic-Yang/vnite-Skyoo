@@ -1,5 +1,5 @@
 {
-  "title": "Настройки Vnite",
+  "title": "Настройки Skyoo",
   "general": {
     "title": "Общие",
     "language": "Язык",
@@ -10,10 +10,10 @@
     "followSystem": "Как в системе",
     "closeMainPanel": "Закрывать главное окно",
     "action": "Действие",
-    "quitApp": "Выйти из Vnite",
+    "quitApp": "Выйти из Skyoo",
     "minimizeToTray": "Свернуть в трей",
     "showWindowAfterGameExit": "Показывать главное окно после выхода из игры",
-    "showWindowAfterGameExitDescription": "Автоматически показывать главное окно Vnite и переводить его на передний план после выхода из игры"
+    "showWindowAfterGameExitDescription": "Автоматически показывать главное окно Skyoo и переводить его на передний план после выхода из игры"
   },
   "appearances": {
     "title": "Внешний вид",

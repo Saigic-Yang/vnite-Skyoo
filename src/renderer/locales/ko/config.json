@@ -1,5 +1,5 @@
 {
-  "title": "Vnite 설정",
+  "title": "Skyoo 설정",
   "general": {
     "title": "일반",
     "language": "언어",
@@ -10,7 +10,7 @@
     "followSystem": "시스템 설정을 따름",
     "closeMainPanel": "메인 패널 닫기",
     "action": "동작",
-    "quitApp": "Vnite 종료",
+    "quitApp": "Skyoo 종료",
     "minimizeToTray": "트레이로 최소화",
     "hideWindowAfterGameStart": "게임 실행 후 트레이로 최소화",
     "showWindowAfterGameExit": "게임 종료 후 메인 창 표시",
@@ -19,7 +19,7 @@
     "themeDescription": "어플리케이션에 적용할 테마를 선택해주세요",
     "closeMainPanelDescription": "메인 창을 닫을 때의 행동을 선택해주세요",
     "hideWindowAfterGameStartDescription": "게임을 실행한 후 메인 창을 자동으로 숨깁니다",
-    "showWindowAfterGameExitDescription": "게임 종료가 감지되면 Vnite 메인 창을 자동으로 표시하고 앞으로 가져옵니다"
+    "showWindowAfterGameExitDescription": "게임 종료가 감지되면 Skyoo 메인 창을 자동으로 표시하고 앞으로 가져옵니다"
   },
   "appearances": {
     "title": "표시",

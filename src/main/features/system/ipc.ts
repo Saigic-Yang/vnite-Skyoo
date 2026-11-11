@@ -9,6 +9,7 @@ import {
   setupNativeMonitor,
   stopNativeMonitor
 } from '~/features/monitor'
+import { AUTO_UPDATE_ENABLED } from '~/features/updater'
 import { mainWindow } from '~/index'
 import {
   checkAdminPermissions,
@@ -149,6 +150,10 @@ export function setupSystemIPC(): void {
 
   ipcManager.handle('app:is-portable-mode', async () => {
     return portableStore.isPortableMode
+  })
+
+  ipcManager.handle('app:is-updater-enabled', async () => {
+    return AUTO_UPDATE_ENABLED
   })
 
   ipcManager.handle('app:switch-database-mode', async () => {

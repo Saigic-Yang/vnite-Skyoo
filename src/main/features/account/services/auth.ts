@@ -10,7 +10,7 @@ export class AuthManager {
   private serverUrl!: string
   private clientId!: string
   private clientSecret!: string
-  private redirectUrl: string = 'vnite://auth/callback'
+  private redirectUrl: string = 'skyoo://auth/callback'
   private initialized: boolean = false
 
   private constructor() {

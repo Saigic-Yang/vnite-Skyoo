@@ -105,6 +105,7 @@ type MainIpcEvents =
       'app:update-language': (language: string) => void
       'app:get-app-version': () => string
       'app:is-portable-mode': () => boolean
+      'app:is-updater-enabled': () => boolean
       'app:switch-database-mode': () => void
 
       'utils:open-database-path-in-explorer': () => void

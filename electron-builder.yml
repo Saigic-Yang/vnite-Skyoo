@@ -1,5 +1,5 @@
-appId: vnite
-productName: Vnite
+appId: com.skyoo.app
+productName: Skyoo
 
 directories:
   buildResources: build
@@ -36,12 +36,12 @@ asarUnpack:
   - node_modules/harfbuzzjs/hb-subset.wasm
 
 protocols:
-  - name: Vnite Protocol
+  - name: Skyoo Protocol
     schemes:
-      - vnite
+      - skyoo
 
 win:
-  executableName: Vnite
+  executableName: Skyoo
 
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
@@ -77,8 +77,3 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 
 npmRebuild: false
-
-publish:
-  provider: github
-  owner: ximu3
-  repo: vnite

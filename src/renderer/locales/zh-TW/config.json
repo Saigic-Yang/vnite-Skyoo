@@ -1,5 +1,5 @@
 {
-  "title": "Vnite 設定",
+  "title": "Skyoo 設定",
   "general": {
     "title": "通用",
     "language": "語言",
@@ -14,12 +14,12 @@
     "closeMainPanel": "關閉主面板",
     "closeMainPanelDescription": "選擇關閉主窗口時的行為方式",
     "action": "操作",
-    "quitApp": "退出vnite",
+    "quitApp": "退出Skyoo",
     "minimizeToTray": "最小化到系統匣",
     "hideWindowAfterGameStart": "啟動遊戲後最小化到系統匣",
     "hideWindowAfterGameStartDescription": "啟動遊戲後自動隱藏主窗口",
     "showWindowAfterGameExit": "遊戲結束後顯示主視窗",
-    "showWindowAfterGameExitDescription": "偵測到遊戲結束後，自動顯示 Vnite 並將其切換到前景",
+    "showWindowAfterGameExitDescription": "偵測到遊戲結束後，自動顯示 Skyoo 並將其切換到前景",
     "timerTitle": "游戲計時器",
     "foregroundTimer": {
       "title": "前臺計時",

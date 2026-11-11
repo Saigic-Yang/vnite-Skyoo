@@ -1,4 +1,5 @@
 {
+  "disabled": "이 빌드에서는 자동 업데이트가 비활성화되어 있습니다",
   "dialog": {
     "title": "새로운 버전({{version}})이 있습니다",
     "noReleaseNotes": "릴리즈 노트 없음",

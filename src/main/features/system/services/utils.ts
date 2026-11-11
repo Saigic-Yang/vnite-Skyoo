@@ -173,11 +173,11 @@ export async function createGameShortcut(gameId: string, targetPath: string): Pr
     }
     // Creating URL shortcuts
     await createUrlShortcut({
-      url: `vnite://rungameid/${gameId}`,
+      url: `skyoo://rungameid/${gameId}`,
       iconPath: iconPath,
       targetPath: targetPath,
       name: shortcutName,
-      description: `Launch ${gameName} in Vnite`,
+      description: `Launch ${gameName} in Skyoo`,
       categories: ['Game']
     })
   } catch (error) {

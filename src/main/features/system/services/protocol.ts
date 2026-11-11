@@ -47,9 +47,9 @@ export function setupProtocols(): void {
 
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
-      app.setAsDefaultProtocolClient('vnite', process.execPath, [path.resolve(process.argv[1])])
+      app.setAsDefaultProtocolClient('skyoo', process.execPath, [path.resolve(process.argv[1])])
     }
   } else {
-    app.setAsDefaultProtocolClient('vnite')
+    app.setAsDefaultProtocolClient('skyoo')
   }
 }

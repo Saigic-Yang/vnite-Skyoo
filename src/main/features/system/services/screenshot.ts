@@ -244,7 +244,7 @@ async function captureToPersistenceLayer(
   // if user is not saving screenshot to file system, create a temporary file in user's
   // temp directory that can be deleted by the system at any time
   if (!imagePath) {
-    imagePath = path.join(app.getPath('temp'), 'vnite-temp-screenshot.png')
+    imagePath = path.join(app.getPath('temp'), 'skyoo-temp-screenshot.png')
     try {
       const stream = createWriteStream(imagePath)
       stream.write(buffer)
@@ -257,7 +257,7 @@ async function captureToPersistenceLayer(
   const isSilent = !(await ConfigDBManager.getConfigValue('memory.enableNotificationSound'))
   // display a system notification
   native.sendSystemNotification(
-    'vnite',
+    'com.skyoo.app',
     null,
     i18next.t('system-notification:screenshotSaved'),
     null,

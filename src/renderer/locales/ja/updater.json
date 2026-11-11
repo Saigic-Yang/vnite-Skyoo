@@ -1,4 +1,5 @@
 {
+  "disabled": "このビルドでは自動更新は無効です",
   "dialog": {
     "title": "新バージョン {{version}} が見つかりました",
     "noReleaseNotes": "リリースノートなし",

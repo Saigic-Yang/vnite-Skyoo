@@ -14,6 +14,7 @@ import { cn } from '~/utils'
 export function About(): React.JSX.Element {
   const { t } = useTranslation('config')
   const [version, setVersion] = useState('')
+  const [updaterEnabled, setUpdaterEnabled] = useState(true)
   const { setIsOpen: setUpdateDialogIsOpen, setUpdateInfo } = useUpdaterStore()
 
   useEffect(() => {
@@ -22,7 +23,12 @@ export function About(): React.JSX.Element {
       setVersion(version)
     }
 
+    async function getUpdaterEnabled(): Promise<void> {
+      setUpdaterEnabled(await ipcManager.invoke('app:is-updater-enabled'))
+    }
+
     getVersion()
+    getUpdaterEnabled()
   }, [])
 
   return (
@@ -49,6 +55,8 @@ export function About(): React.JSX.Element {
                 variant="outline"
                 size="icon"
                 className={cn('w-6 h-6')}
+                disabled={!updaterEnabled}
+                title={updaterEnabled ? undefined : t('updater:disabled')}
                 onClick={async () => {
                   toast.loading(t('utils:notifications.checkingForUpdate'), {
                     id: 'checking-for-update'
@@ -104,6 +112,7 @@ export function About(): React.JSX.Element {
             path="updater.allowPrerelease"
             title={t('about.prerelease')}
             controlType="switch"
+            disabled={!updaterEnabled}
             onChange={async (checked) => {
               await ipcManager.invoke('updater:update-config')
               if (checked) {

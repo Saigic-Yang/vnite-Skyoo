@@ -1,4 +1,5 @@
 {
+  "disabled": "此版本已停用自動更新",
   "dialog": {
     "title": "發現新版本 {{version}}",
     "noReleaseNotes": "無更新說明",

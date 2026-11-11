@@ -200,7 +200,7 @@ export async function checkAdminPermissions(): Promise<boolean> {
 }
 
 export function parseGameIdFromUrl(url: string): string | null {
-  const match = url.match(/vnite:\/\/rungameid\/([^/\s]+)/)
+  const match = url.match(/skyoo:\/\/rungameid\/([^/\s]+)/)
   return match ? match[1] : null
 }
 

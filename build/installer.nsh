@@ -1,16 +1,16 @@
 !macro customInstall
-  DetailPrint "Register vnite URI Handler"
-  DeleteRegKey HKCR "vnite"
-  WriteRegStr HKCR "vnite" "" "URL:Vnite Protocol"
-  WriteRegStr HKCR "vnite" "URL Protocol" ""
-  WriteRegStr HKCR "vnite\DefaultIcon" "" "$INSTDIR\${APP_EXECUTABLE_FILENAME}"
-  WriteRegStr HKCR "vnite\shell" "" ""
-  WriteRegStr HKCR "vnite\shell\Open" "" ""
-  WriteRegStr HKCR "vnite\shell\Open\command" "" "$\"$INSTDIR\${APP_EXECUTABLE_FILENAME}$\" $\"%1$\""
+  DetailPrint "Register skyoo URI Handler"
+  DeleteRegKey HKCR "skyoo"
+  WriteRegStr HKCR "skyoo" "" "URL:Skyoo Protocol"
+  WriteRegStr HKCR "skyoo" "URL Protocol" ""
+  WriteRegStr HKCR "skyoo\DefaultIcon" "" "$INSTDIR\${APP_EXECUTABLE_FILENAME}"
+  WriteRegStr HKCR "skyoo\shell" "" ""
+  WriteRegStr HKCR "skyoo\shell\Open" "" ""
+  WriteRegStr HKCR "skyoo\shell\Open\command" "" "$\"$INSTDIR\${APP_EXECUTABLE_FILENAME}$\" $\"%1$\""
 !macroend
 
 !macro customRemoveFiles
-  DeleteRegKey HKCR "vnite"
+  DeleteRegKey HKCR "skyoo"
   Push $R1
   Push $R2
 

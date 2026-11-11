@@ -1,4 +1,5 @@
 {
+  "disabled": "La mise à jour automatique est désactivée dans cette version",
   "dialog": {
     "title": "Nouvelle version trouvée {{version}}",
     "noReleaseNotes": "",

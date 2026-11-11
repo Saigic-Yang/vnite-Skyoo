@@ -40,6 +40,10 @@ import {
   restartAppAsAdmin
 } from './utils'
 
+// Keep the internal app name (and therefore the userData / logs directory) isolated
+// from the upstream app, regardless of how electron-builder packages package.json.
+app.setName('Skyoo')
+
 export let mainWindow: BrowserWindow
 
 export let trayManager: TrayManager
@@ -174,7 +178,7 @@ protocol.registerSchemesAsPrivileged([
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('vnite')
+  electronApp.setAppUserModelId('com.skyoo.app')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -256,7 +260,7 @@ app.whenReady().then(async () => {
       enqueueGameLaunch(gameId)
     }
     // Check for auth callback URLs specifically
-    const authUrl = commandLine.find((arg) => arg.startsWith('vnite://auth/callback'))
+    const authUrl = commandLine.find((arg) => arg.startsWith('skyoo://auth/callback'))
     if (authUrl) {
       // Processing auth callback URL
       handleAuthCallback(authUrl)

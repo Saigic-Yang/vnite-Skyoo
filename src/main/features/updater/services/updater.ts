@@ -3,7 +3,19 @@ import { ConfigDBManager } from '~/core/database'
 import { ipcManager } from '~/core/ipc'
 import log from 'electron-log/main.js'
 
+/**
+ * Auto update is disabled by default in this fork so the app never contacts the upstream
+ * release feed. Re-enable it only after pointing the update feed at your own releases
+ * (see `electron-builder.yml` > publish and `dev-app-update.yml`).
+ */
+export const AUTO_UPDATE_ENABLED = false
+
 export async function setupAutoUpdater(): Promise<void> {
+  if (!AUTO_UPDATE_ENABLED) {
+    log.info('[AppUpdater] Auto update is disabled in this build')
+    return
+  }
+
   // Development Environment Configuration
   if (process.env.NODE_ENV === 'development') {
     autoUpdater.forceDevUpdateConfig = true

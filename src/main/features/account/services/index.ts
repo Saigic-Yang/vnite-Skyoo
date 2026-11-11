@@ -4,7 +4,7 @@ import log from 'electron-log/main'
 export { AuthManager }
 
 export function handleAuthCallback(url: string): void {
-  if (!url.startsWith('vnite://auth/callback')) return
+  if (!url.startsWith('skyoo://auth/callback')) return
 
   try {
     // Parsing the URL and getting the authorization code

@@ -81,7 +81,7 @@ export class TrayManager {
     if (this.tray) return
 
     this.tray = new Tray(icon)
-    this.tray.setToolTip('Vnite')
+    this.tray.setToolTip('Skyoo')
     this.setTrayMenu()
     this.bindTrayEvents()
   }
@@ -100,7 +100,7 @@ export class TrayManager {
             ? nativeImage.createFromBuffer(game.icon).resize({ width: 16, height: 16 })
             : undefined,
           click: () => {
-            shell.openExternal(`vnite://rungameid/${game.id}`)
+            shell.openExternal(`skyoo://rungameid/${game.id}`)
           }
         })
       })

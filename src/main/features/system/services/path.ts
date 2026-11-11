@@ -62,7 +62,7 @@ export function getAppTempPath(file?: string): string {
     const tempDir = app?.getPath?.('temp') || os.tmpdir()
 
     // Creating application-specific temporary directory paths
-    const appTempDir = path.join(tempDir, 'vnite', file || '')
+    const appTempDir = path.join(tempDir, 'skyoo', file || '')
 
     return appTempDir
   } catch (error) {

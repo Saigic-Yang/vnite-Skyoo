@@ -1,7 +1,8 @@
 {
-  "name": "vnite",
+  "name": "skyoo",
+  "productName": "Skyoo",
   "version": "4.13.0",
-  "description": "Vnite",
+  "description": "Skyoo",
   "main": "./out/main/index.js",
   "author": "ximu3",
   "homepage": "https://github.com/ximu3/vnite",
