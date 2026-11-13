@@ -11,7 +11,7 @@ import pngToIco from 'png-to-ico'
 import sharp from 'sharp'
 import { promisify } from 'util'
 import { getAppTempPath, getDataPath } from '~/features/system'
-import { psManager } from './powershell'
+import { psManager, toPowerShellStringLiteral } from './powershell'
 
 const execAsync = promisify(exec)
 
@@ -90,11 +90,12 @@ export async function copyFileToClipboard(filePath: string): Promise<boolean> {
 
     // Ensure absolute path is used
     const absolutePath = path.resolve(filePath)
+    const pathLiteral = toPowerShellStringLiteral(absolutePath)
 
     // PowerShell command: Add the file to clipboard
     const psCommand = `
       Add-Type -AssemblyName System.Windows.Forms
-      $filePath = "${absolutePath.replace(/\\/g, '\\\\')}"
+      $filePath = ${pathLiteral}
       $fileCollection = New-Object System.Collections.Specialized.StringCollection
       $fileCollection.Add($filePath) | Out-Null
       [System.Windows.Forms.Clipboard]::SetFileDropList($fileCollection)
@@ -325,20 +326,6 @@ export function formatDate(dateString: string, outputFormat: string = 'yyyy-MM-d
     log.error(`[Utils] Error formatting date: ${dateString}`)
     return ''
   }
-}
-
-export async function withTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  providerId: string
-): Promise<T> {
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => {
-      reject(new Error(`Request to provider ${providerId} timed out after ${timeoutMs}ms`))
-    }, timeoutMs)
-  })
-
-  return Promise.race([promise, timeoutPromise])
 }
 
 interface UrlShortcutOptions {

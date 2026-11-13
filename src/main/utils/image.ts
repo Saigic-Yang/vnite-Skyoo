@@ -1,4 +1,6 @@
 import { getUpscalerBackendByPath, type GameImageUpscaleOptions } from '@appTypes/utils'
+import avifDecoderWasmPath from '@jsquash/avif/codec/dec/avif_dec.wasm?asset'
+import decodeAvif, { init as initAvifDecoder } from '@jsquash/avif/decode.js'
 import { Mutex } from 'async-mutex'
 import { spawn } from 'child_process'
 import { clipboard, net } from 'electron'
@@ -8,80 +10,7 @@ import path from 'path'
 import sharp from 'sharp'
 import ico from 'sharp-ico'
 import { getAppTempPath } from '~/features/system'
-import { gis } from './gis'
 const upscalerProcessMutex = new Mutex()
-
-export async function searchGameImages(
-  gameName: string,
-  promptTerms: string | string[],
-  limit: number = 30
-): Promise<string[]> {
-  try {
-    const normalizedTerms = normalizePromptTerms(promptTerms)
-    const queries =
-      normalizedTerms.length > 0
-        ? normalizedTerms.map((term) => `"${normalizeGoogleSearchTerm(gameName)}" ${term}`)
-        : [`"${normalizeGoogleSearchTerm(gameName)}"`]
-
-    const validQueries = queries.filter(Boolean)
-    if (validQueries.length === 0) {
-      return []
-    }
-
-    // Google Search officially documents quotes, but we did not find reliable, detailed
-    // Web Search documentation for composing stable mixed boolean expressions such as
-    // AND + OR with parentheses. To avoid relying on brittle query parsing rules, run
-    // one simple query per media hint term and merge the results afterward.
-    const resultsByQuery = await Promise.all(validQueries.map((query) => gis(query)))
-    const rankedUrls: Record<string, { hitCount: number; seenOrder: number }> = {}
-
-    for (const results of resultsByQuery) {
-      let seenOrder = 0
-      for (const result of results.slice(0, limit)) {
-        const url = result.url || ''
-        if (!url) continue
-
-        const existing = rankedUrls[url]
-        if (existing) {
-          existing.hitCount += 1
-          existing.seenOrder = Math.min(existing.seenOrder, seenOrder)
-        } else {
-          rankedUrls[url] = { hitCount: 1, seenOrder: seenOrder }
-        }
-
-        seenOrder += 1
-      }
-    }
-
-    return Object.entries(rankedUrls)
-      .sort(
-        ([_aUrl, aRank], [_bUrl, bRank]) =>
-          bRank.hitCount - aRank.hitCount || aRank.seenOrder - bRank.seenOrder
-      )
-      .slice(0, limit)
-      .map(([url]) => url)
-  } catch (error) {
-    console.error('Error searching for images:', error)
-    return []
-  }
-}
-
-function normalizePromptTerms(promptTerms: string | string[]): string[] {
-  const uniqueTerms = new Set<string>()
-
-  for (const term of Array.isArray(promptTerms) ? promptTerms : [promptTerms]) {
-    const normalizedTerm = normalizeGoogleSearchTerm(term)
-    if (!normalizedTerm) continue
-
-    uniqueTerms.add(normalizedTerm)
-  }
-
-  return Array.from(uniqueTerms)
-}
-
-function normalizeGoogleSearchTerm(term: string): string {
-  return term.replace(/"/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 export async function convertToWebP(
   input: Buffer | string,
@@ -122,6 +51,40 @@ export async function convertToWebP(
 
       // Convert to WebP
       return await largestIcon
+        .webp({
+          quality: options.quality ?? 100
+        })
+        .toBuffer()
+    }
+
+    const fileType = await fileTypeFromBuffer(imageBuffer as Uint8Array)
+
+    // Under ISO BMFF, AVIF may be declared as either the major brand or a compatible
+    // brand. When AVIF appears only as a compatible brand, file-type reports generic HEIF.
+    // Although generic HEIF may also represent HEIC, but there is no current need to support it.
+    if (fileType?.mime === 'image/avif' || fileType?.mime === 'image/heif') {
+      // Some images in Steam descriptions use 10-bit AVIF, which Sharp cannot decode.
+      // To keep this conversion path simple, route all AVIF input through @jsquash/avif.
+      // This API exposes only a single frame, so animated AVIF is not preserved.
+      await ensureAvifDecoder()
+      const imageData = await decodeAvif(imageBuffer)
+      if (!imageData) {
+        throw new Error('Failed to decode image as AVIF')
+      }
+
+      const pixels = Buffer.from(
+        imageData.data.buffer,
+        imageData.data.byteOffset,
+        imageData.data.byteLength
+      )
+
+      return await sharp(pixels, {
+        raw: {
+          width: imageData.width,
+          height: imageData.height,
+          channels: 4
+        }
+      })
         .webp({
           quality: options.quality ?? 100
         })
@@ -182,6 +145,21 @@ function isIcoFormat(buffer: Buffer): boolean {
     return buffer[0] === 0 && buffer[1] === 0 && buffer[2] === 1 && buffer[3] === 0
   }
   return false
+}
+
+let avifDecoderInitialization: Promise<void> | undefined
+
+async function ensureAvifDecoder(): Promise<void> {
+  avifDecoderInitialization ??= (async () => {
+    const wasmBuffer = await fse.readFile(avifDecoderWasmPath)
+    const wasmModule = await WebAssembly.compile(Uint8Array.from(wasmBuffer))
+
+    // Follow jSquash's Node integration pattern by loading and compiling WASM explicitly:
+    // https://github.com/jamsinclair/jSquash/blob/main/examples/with-node/index.js
+    await initAvifDecoder(wasmModule)
+  })()
+
+  return avifDecoderInitialization
 }
 
 export async function cropImage({

@@ -1,19 +1,17 @@
-import path from 'path'
-import fse from 'fs-extra'
-import { ipcMain, BrowserWindow } from 'electron'
-import { simulateHotkey } from '~/utils'
-import { updateRecentGamesInTray } from '~/features/system'
-import { GameDBManager, ConfigDBManager } from '~/core/database'
-import log from 'electron-log/main.js'
-import { backupGameSave } from '~/features/game'
-import { spawn } from 'child_process'
-import { psManager } from '~/utils'
-import { ipcManager } from '~/core/ipc'
-import { eventBus } from '~/core/events'
-import { ActiveGameInfo } from '~/features/game'
-import { Mutex } from 'async-mutex'
-import { removeMonitorStub } from './nativeMonitor'
 import { TimerStatus } from '@appTypes/models'
+import { Mutex } from 'async-mutex'
+import { spawn } from 'child_process'
+import { BrowserWindow, ipcMain } from 'electron'
+import log from 'electron-log/main.js'
+import fse from 'fs-extra'
+import path from 'path'
+import { ConfigDBManager, GameDBManager } from '~/core/database'
+import { eventBus } from '~/core/events'
+import { ipcManager } from '~/core/ipc'
+import { ActiveGameInfo, backupGameSave } from '~/features/game'
+import { updateRecentGamesInTray } from '~/features/system'
+import { psManager, simulateHotkey, toPowerShellStringLiteral } from '~/utils'
+import { removeMonitorStub } from './nativeMonitor'
 
 async function getProcessList(): Promise<
   Array<{
@@ -165,6 +163,7 @@ export class GameMonitor {
       const isProcessNameMode = process.isProcessNameMode === true
 
       if (isProcessNameMode) {
+        // NOTE: This legacy branch is unused by native monitoring; its command safety is unchecked.
         // Process name mode, use the process name directly
         const processName = process.path
         console.log(`Try to terminate process by name: ${processName}`)
@@ -195,13 +194,14 @@ export class GameMonitor {
       } else {
         // Normalize the path
         const normalizedPath = this.normalizePath(process.path)
+        const pathLiteral = toPowerShellStringLiteral(normalizedPath)
         const processName = path.basename(normalizedPath)
 
         console.log(`Try to terminate process: ${normalizedPath}`)
 
         try {
           // Use PowerShell to terminate the process by exact path
-          const psCommand = `Get-Process | Where-Object {$_.Path -eq '${normalizedPath}'} | Stop-Process -Force`
+          const psCommand = `Get-Process | Where-Object {$_.Path -eq ${pathLiteral}} | Stop-Process -Force`
           await psManager.executeCommand(psCommand)
           console.log(`Process ${processName} has been terminated successfully.`)
           return true
@@ -561,7 +561,6 @@ export class GameMonitor {
         mainWindow.focus()
       }
     } catch (error) {
-      // 窗口恢复属于非关键体验；读取或显示失败不能阻断退出事件和时长保存。
       log.warn('[Monitor] Failed to restore the window after game exit:', error)
     }
   }
@@ -573,114 +572,138 @@ export class GameMonitor {
     }
 
     this.exiting = true
+    let playTime = 0
 
-    log.info(`Game ${this.options.gameId} Exit`)
+    try {
+      log.info(`Game ${this.options.gameId} Exit`)
 
-    ActiveGameInfo.removeGameInfo(this.options.gameId)
+      ActiveGameInfo.removeGameInfo(this.options.gameId)
 
-    // Record end time
-    this.endTime = new Date().toISOString()
+      // Record end time
+      this.endTime = new Date().toISOString()
 
-    // 窗口恢复与退出收尾并行执行，避免非关键配置读取拖住退出事件和时长保存。
-    void this.restoreWindowAfterGameExit()
+      // Restore the window in parallel so non-critical config reads do not delay exit handling or playtime persistence.
+      void this.restoreWindowAfterGameExit()
 
-    ipcManager.send('game:exiting', this.options.gameId)
+      ipcManager.send('game:exiting', this.options.gameId)
 
-    const timers: { start: string; end: string }[] = []
+      /**
+       * Exit notifications originate from an external native monitor and must not be trusted by
+       * default, given the complexity of keeping its state synchronized with the application.
+       *
+       * A past (now fixed) synchronization issue caused it to report exits for games that had
+       * already been deleted, allowing subsequent database access to recreate them as partial
+       * "ghost" entries.
+       *
+       * Do not place any database helper that may insert data before this read-only existence check.
+       */
+      const game = await GameDBManager.getExistingGame(this.options.gameId)
 
-    let time = this.startTime!
-    let stat = TimerStatus.Resumed
-    for (const change of this.foregroundChanges) {
-      if (change.eventType === stat) {
-        continue
+      if (!game) {
+        log.info(`Skip exit persistence for deleted game ${this.options.gameId}`)
+        return
       }
-      switch (change.eventType) {
-        case TimerStatus.Paused: // status changed from 'continue' to 'pause', push this playing period
-          timers.push({
-            start: time,
-            end: change.time
-          })
-          break
-        case TimerStatus.Resumed: // status changed from 'pause' to 'continue', keep the start time (just break)
-          break
+
+      const timers: { start: string; end: string }[] = []
+
+      let time = this.startTime!
+      let stat = TimerStatus.Resumed
+      for (const change of this.foregroundChanges) {
+        if (change.eventType === stat) {
+          continue
+        }
+        switch (change.eventType) {
+          case TimerStatus.Paused: // status changed from 'continue' to 'pause', push this playing period
+            timers.push({
+              start: time,
+              end: change.time
+            })
+            break
+          case TimerStatus.Resumed: // status changed from 'pause' to 'continue', keep the start time (just break)
+            break
+        }
+        stat = change.eventType
+        time = change.time
       }
-      stat = change.eventType
-      time = change.time
-    }
-    // after the end of loop, check if we need to record the last playing period
-    if (stat === TimerStatus.Resumed) {
-      timers.push({
-        start: time,
-        end: this.endTime
-      })
-    }
+      // after the end of loop, check if we need to record the last playing period
+      if (stat === TimerStatus.Resumed) {
+        timers.push({
+          start: time,
+          end: this.endTime
+        })
+      }
 
-    const breakThreshold =
-      (await ConfigDBManager.getConfigValue('general.ignoreShortInterruptions')) * 1000
-    const sessionThreshold =
-      (await ConfigDBManager.getConfigValue('general.ignoreShortSessions')) * 1000
+      const breakThreshold =
+        (await ConfigDBManager.getConfigValue('general.ignoreShortInterruptions')) * 1000
+      const sessionThreshold =
+        (await ConfigDBManager.getConfigValue('general.ignoreShortSessions')) * 1000
 
-    let filteredTimers = timers
-    if (breakThreshold > 0 && timers.length >= 2) {
-      filteredTimers = []
-      filteredTimers.push(timers[0])
-      for (let i = 1; i < timers.length; i++) {
-        const prevEnd = new Date(timers[i - 1].end).getTime()
-        const curStart = new Date(timers[i].start).getTime()
-        if (curStart - prevEnd < breakThreshold) {
-          const prevFiltered = filteredTimers.pop()
-          if (prevFiltered) {
-            filteredTimers.push({ start: prevFiltered.start, end: timers[i].end })
+      let filteredTimers = timers
+      if (breakThreshold > 0 && timers.length >= 2) {
+        filteredTimers = []
+        filteredTimers.push(timers[0])
+        for (let i = 1; i < timers.length; i++) {
+          const prevEnd = new Date(timers[i - 1].end).getTime()
+          const curStart = new Date(timers[i].start).getTime()
+          if (curStart - prevEnd < breakThreshold) {
+            const prevFiltered = filteredTimers.pop()
+            if (prevFiltered) {
+              filteredTimers.push({ start: prevFiltered.start, end: timers[i].end })
+            } else {
+              filteredTimers.push(timers[i])
+            }
           } else {
             filteredTimers.push(timers[i])
           }
-        } else {
-          filteredTimers.push(timers[i])
         }
       }
-    }
 
-    if (sessionThreshold > 0) {
-      filteredTimers = filteredTimers.filter((timer) => {
-        return new Date(timer.end).getTime() - new Date(timer.start).getTime() > sessionThreshold
-      })
-    }
+      if (sessionThreshold > 0) {
+        filteredTimers = filteredTimers.filter((timer) => {
+          return new Date(timer.end).getTime() - new Date(timer.start).getTime() > sessionThreshold
+        })
+      }
 
-    const dbTimers = await GameDBManager.getGameValue(this.options.gameId, 'record.timers')
-    let playTime = await GameDBManager.getGameValue(this.options.gameId, 'record.playTime')
-    for (const timer of filteredTimers) {
-      dbTimers.push(timer)
-      playTime += new Date(timer.end).getTime() - new Date(timer.start).getTime()
-    }
+      const dbTimers = await GameDBManager.getGameValue(this.options.gameId, 'record.timers')
+      playTime = await GameDBManager.getGameValue(this.options.gameId, 'record.playTime')
+      for (const timer of filteredTimers) {
+        dbTimers.push(timer)
+        playTime += new Date(timer.end).getTime() - new Date(timer.start).getTime()
+      }
 
-    // check existence before adding records
-    if (await GameDBManager.getGame(this.options.gameId)) {
       await GameDBManager.setGameValue(this.options.gameId, 'record.timers', dbTimers)
       await GameDBManager.setGameValue(this.options.gameId, 'record.lastRunDate', this.endTime)
       await GameDBManager.setGameValue(this.options.gameId, 'record.hideFromRecentGames', false)
       await GameDBManager.setGameValue(this.options.gameId, 'record.playTime', playTime)
+
+      // Release the IPC handler before backup so a restarted game can be monitored.
+      this.stop()
+
+      const autoBackupSave = await GameDBManager.getGameValue(
+        this.options.gameId,
+        'save.autoBackupSave'
+      )
+      const savePaths = await GameDBManager.getGameLocalValue(this.options.gameId, 'path.savePaths')
+
+      if (autoBackupSave && filteredTimers.length > 0 && savePaths.some(Boolean)) {
+        await backupGameSave(this.options.gameId)
+      }
+    } finally {
+      // Stop monitoring
+      this.stop()
+
+      updateRecentGamesInTray()
+
+      ipcManager.send('game:exited', this.options.gameId)
+      eventBus.emit(
+        'game:stopped',
+        {
+          gameId: this.options.gameId,
+          duration: playTime
+        },
+        { source: 'monitor' }
+      )
     }
-
-    // Stop monitoring
-    this.stop()
-
-    updateRecentGamesInTray()
-
-    const savePaths = await GameDBManager.getGameLocalValue(this.options.gameId, 'path.savePaths')
-
-    if (savePaths.some(Boolean)) {
-      await backupGameSave(this.options.gameId)
-    }
-
-    ipcManager.send('game:exited', this.options.gameId)
-    eventBus.emit(
-      'game:stopped',
-      {
-        gameId: this.options.gameId,
-        duration: playTime
-      },
-      { source: 'monitor' }
-    )
   }
 
   public getStatus(): GameStatus {

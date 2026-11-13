@@ -55,6 +55,7 @@ function PathComponent(
   const [isScreenshotPathValid, setIsScreenshotPathValid] = useState(true)
   const [screenshotPath, setScreenshotPath, saveScreenshotPath, setScreenshotPathAndSave] =
     useGameLocalState(gameId, 'path.screenshotPath', true)
+  const [autoBackupSave, setAutoBackupSave] = useGameState(gameId, 'save.autoBackupSave')
   const [autoRestoreSave, setAutoRestoreSave] = useGameState(gameId, 'save.autoRestoreSave')
 
   const [showSearchDialog, setShowSearchDialog] = useState(false)
@@ -173,7 +174,7 @@ function PathComponent(
       'images/icon.webp'
     )
     if (!isIconAccessible) {
-      await ipcManager.invoke('utils:save-game-icon-by-file', gameId, filePath)
+      await ipcManager.invoke('game:save-icon-by-file', gameId, filePath)
     }
     if (!monitorPath) {
       toast.promise(
@@ -378,6 +379,16 @@ function PathComponent(
                   </SelectGroup>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Auto backup save */}
+          <div className={cn('flex flex-row gap-5 items-center justify-start text-sm')}>
+            <div className={cn('whitespace-nowrap select-none')}>
+              {t('detail.properties.path.autoBackupSave')}
+            </div>
+            <div>
+              <Switch checked={autoBackupSave} onCheckedChange={setAutoBackupSave} />
             </div>
           </div>
 
