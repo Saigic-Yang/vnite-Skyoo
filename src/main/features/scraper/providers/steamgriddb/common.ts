@@ -15,10 +15,30 @@ const STEAMGRIDDB_API_KEY = import.meta.env.VITE_STEAMGRIDDB_API_KEY || ''
 
 const API_ENDPOINT = 'https://www.steamgriddb.com/api/v2'
 
+/**
+ * Skyoo fork: SteamGridDB 需要 API Key，未配置时直接返回空结果，
+ * 避免发出 `Authorization: Bearer `（空 token）的请求而抛出 HTTP 401。
+ */
+export function isSteamGridDBConfigured(): boolean {
+  return Boolean(STEAMGRIDDB_API_KEY)
+}
+
+let missingKeyWarned = false
+
 async function fetchSteamGridDb(
   endpoint: string,
   queryParams?: Record<string, string>
 ): Promise<any> {
+  if (!STEAMGRIDDB_API_KEY) {
+    if (!missingKeyWarned) {
+      console.warn(
+        '[SteamGridDB] VITE_STEAMGRIDDB_API_KEY is not configured, media requests are skipped'
+      )
+      missingKeyWarned = true
+    }
+    return { data: null }
+  }
+
   const params = new URLSearchParams(queryParams)
   const url = `${API_ENDPOINT}/${endpoint}${queryParams ? `?${params.toString()}` : ''}`
 

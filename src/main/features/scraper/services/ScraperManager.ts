@@ -24,6 +24,29 @@ import {
 
 const SCRAPER_AGGREGATION_TIMEOUT = 5_000
 
+/**
+ * Skyoo fork: only Steam / IGDB / SteamGridDB / Google / ErogameScape are offered as
+ * sources (both metadata and media pickers). The hidden identifiers stay registered so
+ * old references, plugin data and internal fallbacks keep working — they are simply
+ * filtered out of every provider list returned to the renderer.
+ */
+const HIDDEN_PROVIDER_IDS = new Set(['vndb', 'ymgal', 'dlsite', 'bangumi'])
+
+/**
+ * Skyoo fork: providers that need user-supplied credentials. When the credential is
+ * missing they are hidden from every picker instead of failing with HTTP 401 later.
+ * Fill the corresponding `.env` variables and rebuild to enable them again.
+ */
+const PROVIDER_CREDENTIALS: Record<string, string | undefined> = {
+  igdb: import.meta.env.VITE_IGDB_API_ID,
+  steamgriddb: import.meta.env.VITE_STEAMGRIDDB_API_KEY
+}
+
+function isProviderConfigured(providerId: string): boolean {
+  if (!Object.hasOwn(PROVIDER_CREDENTIALS, providerId)) return true
+  return Boolean(PROVIDER_CREDENTIALS[providerId])
+}
+
 type AggregatedMetadataSource = {
   dataSource: string
   metadata: GameMetadata
@@ -273,6 +296,9 @@ export class ScraperManager {
   ): { id: string; name: string; capabilities: ScraperCapabilities[] }[] {
     return this.getAllProviders()
       .filter((provider) => {
+        if (HIDDEN_PROVIDER_IDS.has(provider.id)) return false
+        if (!isProviderConfigured(provider.id)) return false
+
         const providerCapabilities = this.getProviderCapabilities(provider)
 
         if (requireAll) {

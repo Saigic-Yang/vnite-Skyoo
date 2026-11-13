@@ -1,6 +1,7 @@
 import { useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import brandIcon from '@resources/icon.png?inline'
 import { ipcManager } from '~/app/ipc'
 import { Button } from '~/components/ui/button'
 import {
@@ -42,14 +43,17 @@ export function Sidebar(): React.JSX.Element {
         {/* Logo */}
         {/* Click to go back */}
         <div
-          className={cn(
-            'font-mono text-shadow-lg text-2xl font-bold flex justify-center items-center text-primary non-draggable cursor-pointer'
-          )}
+          className={cn('flex justify-center items-center non-draggable cursor-pointer')}
           onClick={() => {
             router.navigate({ to: '/' })
           }}
         >
-          V
+          <img
+            src={brandIcon}
+            alt="Skyoo"
+            draggable={false}
+            className={cn('w-7 h-7 rounded-md object-cover')}
+          />
         </div>
         {/* Library */}
         <Tooltip>

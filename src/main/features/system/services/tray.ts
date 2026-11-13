@@ -3,7 +3,8 @@ import i18next from 'i18next'
 import { ConfigDBManager, GameDBManager } from '~/core/database'
 import { eventBus } from '~/core/events'
 import { convertToPng } from '~/utils'
-import icon from '../../../../../resources/icon.ico?asset'
+// 托盘专用简化图标（只保留龙 + 手柄，去掉文字，16px 下更清晰）
+import icon from '../../../../../resources/tray.ico?asset'
 
 export interface AppConfig {
   openAtLogin: boolean

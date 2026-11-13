@@ -10,6 +10,11 @@ import {
   IGDBWebsiteCategory
 } from './types'
 
+/** Skyoo fork: 未配置 IGDB 凭据时不发起请求，直接返回空结果。 */
+export function isIGDBConfigured(): boolean {
+  return Boolean(import.meta.env.VITE_IGDB_API_ID) && Boolean(import.meta.env.VITE_IGDB_API_KEY)
+}
+
 // Create a client instance (no global state)
 function createIGDBClient(): IGDBClient {
   const config: IGDBAuthConfig = {
