@@ -70,14 +70,14 @@ pnpm dev
 <details open>
 <summary>Dark</summary>
 
-![Skyoo dark](docs/screenshots/dark.png)
+![Skyoo dark](docs/screenshots/dark.jpg)
 
 </details>
 
 <details>
 <summary>Light</summary>
 
-![Skyoo light](docs/screenshots/light.png)
+![Skyoo light](docs/screenshots/light.jpg)
 
 </details>
 
