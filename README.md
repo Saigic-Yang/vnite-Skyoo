@@ -1,3 +1,21 @@
+<div align="center">
+  <img src="resources/icon.png" width="128" height="128" alt="Skyoo">
+
+  <h1 align="center">
+    Skyoo
+  </h1>
+
+  <p align="center">
+    <a href="https://www.electronjs.org/" target="_blank"><img src="https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron"></a>
+    <a href="https://reactjs.org/" target="_blank"><img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React"></a>
+    <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank"><img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg?style=flat-square&logo=gnu&logoColor=white" alt="GPL-3.0 License"></a>
+    </br>
+    <a href="https://github.com/Saigic-Yang/vnite-Skyoo/stargazers"><img src="https://img.shields.io/github/stars/Saigic-Yang/vnite-Skyoo?color=ffcb47&labelColor=black&style=flat-square&logo=github&label=Stars" /></a>
+    <a href="https://github.com/Saigic-Yang/vnite-Skyoo/graphs/contributors"><img src="https://img.shields.io/github/contributors/Saigic-Yang/vnite-Skyoo?style=flat-square&logo=github&label=Contributors&labelColor=black" /></a>
+    <a href="https://github.com/Saigic-Yang/vnite-Skyoo/releases"><img src="https://img.shields.io/github/downloads/Saigic-Yang/vnite-Skyoo/total?color=369eff&labelColor=black&logo=github&style=flat-square&label=Downloads" /></a>
+  </p>
+</div>
+
 > **本项目基于 [Vnite](https://github.com/ximu3/vnite)（GPL-3.0）修改而来，当前为 Skyoo 定制版。**
 >
 > - 修改日期：2026-11-14
@@ -8,54 +26,36 @@
 > This is a modified version of [Vnite](https://github.com/ximu3/vnite) (GPL-3.0), modified on 2026-11-14.
 > Original copyright belongs to its authors and contributors. Released under GPL-3.0 as well.
 
-<div align="center">
-  <img src="https://img.timero.xyz/i/2025/07/31/688b10f8bccfc.png" width="128" height="128" alt="cover">
+Skyoo 是一个面向本地游戏库的管理工具。它在 Vnite 的基础上做了界面与交互的重构，主打「沉浸式游戏墙 + 完整的游玩记录」，可以统一管理游戏、记录游玩时长与评分，并生成多维度的统计报告。
 
-  <h1 align="center">
-    Vnite
-  </h1>
+## ✨ 相较上游的主要改动
 
-  <p align="center">
-    <a href="https://www.electronjs.org/" target="_blank"><img src="https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron"></a>
-    <a href="https://reactjs.org/" target="_blank"><img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React"></a>
-    <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank"><img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg?style=flat-square&logo=gnu&logoColor=white" alt="GPL-3.0 License"></a>
-    </br>
-    <a href="https://github.com/ximu3/vnite/stargazers"><img src="https://img.shields.io/github/stars/ximu3/vnite?color=ffcb47&labelColor=black&style=flat-square&logo=github&label=Stars" /></a>
-    <a href="https://github.com/ximu3/vnite/graphs/contributors"><img src="https://img.shields.io/github/contributors/ximu3/vnite?style=flat-square&logo=github&label=Contributors&labelColor=black" /></a>
-    <a href="https://github.com/ximu3/vnite/releases"><img src="https://img.shields.io/github/downloads/ximu3/vnite/total?color=369eff&labelColor=black&logo=github&style=flat-square&label=Downloads" /></a>
-    <a href="https://t.me/+d65-R_xRx1JlYWZh" target="_blank"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=flat-square&logo=telegram&logoColor=white&labelColor=black" /></a>
-  </p>
-</div>
+- **界面重构**：侧栏可拖动调宽 / 文字随宽度渐显，图标可拖动排序并记忆位置
+- **顶栏自定义**：搜索框、前进后退、主页、收藏、所有游戏、筛选、排序，按钮可拖动排序
+- **沉浸式卡片墙**：卡片 3D 悬停动效（跟随鼠标、带纵深），最近游戏 / 最近入库 / 我的收藏分区展示
+- **评分体系重做**：Steam / Metacritic / OpenCritic 多源评分，1~10 整数打分，Steam 官方评价配色
+- **评分报告**：按 1 / 2~3 / 4~5 / 6~7 / 8~9 / 10 六档分组，标题与说明文案可编辑，并保留最近 4 条历史
+- **详情页动效**：大背景 3D 跟随、徽标（logo）独立 3D 悬停，并与背景动效互斥
+- **游戏状态**：未开始 / 游玩中 / 部分完成 / 已完成 / 多周目 / 已删除 / 搁置中，配色区分
+- **相关网站**：Steam、SteamDB、Metacritic、OpenCritic、HowLongToBeat、小黑盒一键直达
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+## 🧩 继承自上游的能力
 
-Vnite is a versatile game management software designed to provide a unified interface for recording, managing, and synchronizing your gaming journey.
-
-## ✨ Features
-
-- Modern user interface (with customizable themes)
-- Plugin support (with built-in plugin marketplace)
-- Real-time cloud synchronization for all game records, saves, and settings across multiple devices
-- Support for multiple data sources (Steam, IGDB, Bangumi, VNDB, YMGal, DLsite, Erogamescape)
-- Supports automatic game library integration, each scanner can customize folder structure and data sources
-- Flexible metadata transformer, supports regex modification, replacement, merging, and exclusion of any metadata
-- Detailed reporting functionality, including annual, monthly, and weekly reports to review your gaming journey
-- Integration with other programs (such as one-click LE region switching, automatic Magpie scaling, emulator launching, etc.)
-- One-click import from Steam library (preserving game time)
-- Multiple launch methods (files, links, scripts), with high customizability and preset configurations
-- Dynamic categorization (by developer, tags, etc.)
-- Powerful filters with support for custom metadata fields
-- Session-based timer, supporting recording for individual files or folders
-- Support for launching games via system links
-- Complete separation of data and program for easy backup and customization
+- 插件系统与插件市场
+- 多设备云同步（游戏记录、存档、设置）
+- 多数据源刮削（Steam、IGDB、Bangumi 等）
+- 扫描器：自定义目录结构与数据源，自动入库
+- 元数据转换器：正则改写、替换、合并、排除
+- 年报 / 月报 / 周报与导出报告
+- 与其他程序集成（LE 转区、Magpie 缩放、模拟器启动等）
+- 一键导入 Steam 库（保留游戏时长）
+- 多种启动方式（文件 / 链接 / 脚本）、自定义元数据筛选、会话计时器等
 
 ## Development
 
-Use Node.js 20.19+ (20.x) or 22.12+, and the pnpm version pinned in `package.json`.
-See the [pnpm installation guide](https://pnpm.io/installation) for setup.
-Building the Windows native module also requires the Rust MSVC toolchain and Visual Studio C++ Build Tools with the Windows SDK.
+需要 Node.js 20.19+（20.x）或 22.12+，以及 `package.json` 中锁定的 pnpm 版本。
 
-Run these commands from the repository root:
+构建 Windows 原生模块还需要 Rust MSVC 工具链和装有 Windows SDK 的 Visual Studio C++ 生成工具。
 
 ```sh
 pnpm install --frozen-lockfile
@@ -63,48 +63,35 @@ pnpm build:native
 pnpm dev
 ```
 
-The application and `native` package share a workspace and the root `pnpm-lock.yaml`.
-Use `pnpm typecheck` to check types, `pnpm build` to compile, and `pnpm build:win` to create the Windows installer.
-`pnpm build` and `pnpm build:win` build the native module automatically.
-Dependency patches in `patches/` are applied by pnpm during installation.
+`pnpm typecheck` 检查类型，`pnpm build` 编译，`pnpm build:win` 生成 Windows 安装包。
 
 ## 📸 Screenshots
 
-<details>
+<details open>
 <summary>Dark</summary>
 
-![game](https://img.timero.xyz/i/2025/07/31/688b0cd59020b.png)
+![Skyoo dark](docs/screenshots/dark.png)
 
 </details>
 
 <details>
 <summary>Light</summary>
 
-![game](https://img.timero.xyz/i/2025/07/31/688b0d5d5511e.png)
+![Skyoo light](docs/screenshots/light.png)
 
 </details>
 
-## 💡 Planned Features
+## 📦 Download
 
-- Self-built data source
-- Support for large-screen UI
-
-## 🌏 Internationalization
-
-The internationalization work of Vnite is hosted on [Weblate](https://hosted.weblate.org/projects/vnite/), and your participation is welcome.
-
-<a href="https://hosted.weblate.org/engage/vnite/">
-<img src="https://hosted.weblate.org/widget/vnite/multi-auto.svg" alt="translation-status" />
-</a>
-
-## ☎️ Contact Me
-
-- [Twitter](https://x.com/ximu3_)
-- [Telegram Group](https://t.me/+d65-R_xRx1JlYWZh)
+安装包发布在 [Releases](https://github.com/Saigic-Yang/vnite-Skyoo/releases) 页面，下载 `skyoo-*-setup.exe` 安装即可。
 
 ## ⭐ Acknowledgements
 
+- [Vnite](https://github.com/ximu3/vnite) — 本项目的基础
 - [VNDB API](https://api.vndb.org/kana)
 - [Steam API](https://partner.steamgames.com/doc/api)
-- [YMGal API](https://www.ymgal.games/developer)
+- [SteamGridDB](https://www.steamgriddb.com/)
+- [IGDB API](https://api-docs.igdb.com/)
+- [Metacritic](https://www.metacritic.com/)
+- [OpenCritic](https://opencritic.com/)
 - ...
