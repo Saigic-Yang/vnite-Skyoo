@@ -3,7 +3,7 @@
 > - 修改日期：2026-11-14
 > - 原项目版权归其作者与贡献者所有；本项目同样以 **GPL-3.0** 协议发布，完整源码见本仓库
 > - 上游仓库：https://github.com/ximu3/vnite
-> - 本定制版分支：https://github.com/Saigic-Yang/vnite-Skyoo/tree/skyoo-main
+> - 本定制版分支：https://github.com/Saigic-Yang/vnite-Skyoo/tree/skyoo
 >
 > This is a modified version of [Vnite](https://github.com/ximu3/vnite) (GPL-3.0), modified on 2026-11-14.
 > Original copyright belongs to its authors and contributors. Released under GPL-3.0 as well.
