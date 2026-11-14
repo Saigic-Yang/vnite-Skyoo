@@ -5,6 +5,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { cn } from '~/utils'
 import { GameScoreCard } from './GameScoreCard'
+import { ScoreCategoryHeader } from './ScoreCategoryHeader'
 import { ScoreCategoryData, ScoreReportViewProps } from './types'
 
 interface CompactScoreCategoryProps {
@@ -13,7 +14,7 @@ interface CompactScoreCategoryProps {
 
 function CompactScoreCategory({ category }: CompactScoreCategoryProps): React.JSX.Element | null {
   const { t } = useTranslation('record')
-  const { title, description, games, className } = category
+  const { games, className } = category
 
   if (games.length === 0) {
     return null
@@ -24,11 +25,8 @@ function CompactScoreCategory({ category }: CompactScoreCategoryProps): React.JS
       className={cn(`w-full mb-6 overflow-hidden border-0 shadow-md border-l-4 p-0`, className)}
     >
       <div className="flex flex-col lg:flex-row">
-        <div className="p-6 lg:w-1/5 bg-muted/30">
-          <div className="flex items-center mb-2">
-            <h3 className="text-lg font-semibold">{title}</h3>
-          </div>
-          <p className="mb-3 text-sm text-muted-foreground">{description}</p>
+        <div className="p-6 lg:w-1/5 bg-muted/30 group/scorecat">
+          <ScoreCategoryHeader category={category} className="mb-3" />
           <Badge className="font-normal bg-accent text-accent-foreground">
             {t('score.categories.gamesCount', { count: games.length })}
           </Badge>

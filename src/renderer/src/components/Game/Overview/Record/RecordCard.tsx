@@ -3,9 +3,10 @@ import { Button } from '~/components/ui/button'
 import { PopoverTrigger } from '~/components/ui/popover'
 import { cn } from '~/utils'
 
-interface RecordCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
+interface RecordCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick' | 'content'> {
   title: string
-  content: string
+  /** 卡片正文（允许传带颜色的节点） */
+  content: React.ReactNode
   icon?: string
   onClick?: () => void
   asPopoverTrigger?: boolean

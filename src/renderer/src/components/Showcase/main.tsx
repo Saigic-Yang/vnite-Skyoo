@@ -10,8 +10,8 @@ import { filterGames, searchGames, useGameRegistry, useVisibleGameIds } from '~/
 import { cn } from '~/utils'
 import { useFilterStore } from '../Librarybar/Filter/store'
 import { useLibrarybarStore } from '../Librarybar/store'
-import { AllGames } from './AllGames'
 import { Collections } from './Collections'
+import { RecentlyAdded } from './RecentlyAdded'
 import { FilterSearchGames } from './FilterSearchGames'
 import { RecentGames } from './RecentGames'
 import { ScrollToTopButton } from './ScrollToTopButton'
@@ -88,8 +88,9 @@ export function Showcase(): React.JSX.Element {
     MainContent = (
       <>
         <RecentGames />
+        <RecentlyAdded />
         <Collections />
-        <AllGames />
+        {/* 「所有游戏」已拆成独立 tab（/library/all） */}
       </>
     )
   }

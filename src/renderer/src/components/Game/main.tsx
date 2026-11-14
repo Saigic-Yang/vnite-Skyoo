@@ -7,7 +7,9 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from '@ui/context-menu'
+import { Button } from '@ui/button'
 import { ImageViewer } from '@ui/image-viewer'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ui/tooltip'
 import { ScrollArea } from '@ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/tabs'
 import { useConfigState } from '~/hooks'
@@ -93,6 +95,23 @@ export function Game({ gameId }: { gameId: string }): React.JSX.Element {
     <div className={cn('w-full h-full relative overflow-hidden shrink-0')}>
       <GameLogoOverlay gameId={gameId} scrollAreaRef={scrollAreaRef} />
 
+      {/* 媒体素材编辑快捷入口：背景图右上角 */}
+      <div className="absolute right-5 top-[10px] z-30">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="thirdary"
+              size="icon"
+              className="h-8 w-8 border border-border bg-background/90 shadow-md backdrop-blur-md hover:bg-background"
+              onClick={() => openPropertiesDialog('media')}
+            >
+              <span className="icon-[mdi--image-edit-outline] w-5 h-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">媒体素材</TooltipContent>
+        </Tooltip>
+      </div>
+
       {/* Scrollable Content Area */}
       <ScrollArea
         ref={scrollAreaRef}
@@ -108,7 +127,8 @@ export function Game({ gameId }: { gameId: string }): React.JSX.Element {
               )}
             >
               <div
-                className={`mt-(--content-top-padding)`}
+                // 顶部留白按设置值的 40% 生效，信息区整体上移（原本空白过大）
+                className="mt-[calc(var(--content-top-padding)*0.62)]"
                 onContextMenu={(e) => {
                   // Preserve native context menu inside this area
                   e.stopPropagation()

@@ -2,7 +2,7 @@ import { NSFWBlurLevel } from '@appTypes/models'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HoverCardAnimation } from '~/components/animations/HoverCard'
+import { useTilt } from '~/components/animations/useTilt'
 import { GameNavCM } from '~/components/contextMenu/GameNavCM'
 import { AddCollectionDialog } from '~/components/dialog/AddCollectionDialog'
 import { PlayTimeEditorDialog } from '~/components/Game/Config/ManageMenu/PlayTimeEditorDialog'
@@ -100,6 +100,8 @@ export function GamePoster({
   const [dragging, setDragging] = useState<boolean>(false)
   const [previewState, setPreviewState] = useState<PreviewState>({ type: 'idle' })
   const [showPlayButtonOnPoster] = useConfigState('appearances.showcase.showPlayButtonOnPoster')
+  // 悬停 3D 微动效（与详情页封面同强度）
+  const tilt = useTilt(18, 1.12)
 
   const name = gameData?.name ?? ''
   const stringToBase64 = (str: string): string =>
@@ -232,16 +234,19 @@ export function GamePoster({
         onClick={handleGameClick}
       >
         <div
+          {...tilt.bind}
+          style={tilt.style}
           className={cn(
             'rounded-lg shadow-md',
-            'transition-all duration-300 ease-in-out',
+            // 不要用 transition-all：它会drag住 transform，导致跟随鼠标时卡顿
+            'transition-shadow duration-200 ease-out group-hover:shadow-xl',
             isSelected
               ? 'ring-2 ring-primary'
               : 'ring-0 ring-border group-hover:ring-2 group-hover:ring-primary',
             'relative overflow-hidden group'
           )}
         >
-          <HoverCardAnimation>
+          <div className="relative overflow-hidden rounded-lg">
             <GameImage
               draggable="false"
               gameId={gameId}
@@ -266,7 +271,7 @@ export function GamePoster({
                 </div>
               }
             />
-          </HoverCardAnimation>
+          </div>
 
           {/* Hover overlay */}
           <div
@@ -290,8 +295,8 @@ export function GamePoster({
               {isSelected && <span className="icon-[mdi--check] w-3 h-3" />}
             </div>
 
-            {/* Play button */}
-            <div className="absolute inset-0 flex items-center justify-center flex-grow">
+            {/* Play button：放到卡片右上角（原来是居中大按钮） */}
+            <div className="absolute right-2 top-2 z-20">
               {showPlayButtonOnPoster && !isSelected && (
                 <PlayButton
                   type={runningGames.includes(gameId) ? 'stop' : 'play'}
@@ -343,7 +348,7 @@ export function GamePoster({
   )
 
   return (
-    <div ref={ref_} className="relative overflow-visible select-none">
+    <div ref={ref_} className="relative overflow-visible select-none hover:z-30 focus-within:z-30">
       {dragging ? (
         <Preview title={gameData?.name ?? ''} transparentBackground={true} />
       ) : disableContextMenu ? (

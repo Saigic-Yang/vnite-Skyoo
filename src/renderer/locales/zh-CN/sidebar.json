@@ -2,13 +2,16 @@
   "title": "Skyoo",
   "navigation": {
     "library": "游戏库",
-    "records": "记录",
+    "records": "时间看板",
     "scanner": "扫描器",
-    "databaseInspector": "数据库检查器",
+    "databaseInspector": "数据看板",
+    "scoreReport": "评分报告",
     "transformer": "转换器",
     "plugin": "插件"
   },
   "actions": {
+    "customizeSidebar": "自定义侧栏",
+    "showLabels": "显示文字",
     "viewLogs": "查看日志",
     "libraryFilters": "游戏库过滤",
     "nsfwLevel": {

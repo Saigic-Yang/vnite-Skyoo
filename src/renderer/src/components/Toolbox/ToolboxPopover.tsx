@@ -11,7 +11,13 @@ import { useConfigLocalState } from '~/hooks/useConfigLocalState'
 import { useConfigTabStore } from '~/pages/Config/store'
 import { cn } from '~/utils'
 
-export function ToolboxPopover(): React.JSX.Element {
+export function ToolboxPopover({
+  labelOpacity = 0,
+  itemClass
+}: {
+  labelOpacity?: number
+  itemClass?: string
+} = {}): React.JSX.Element {
   const { t } = useTranslation('sidebar')
   const router = useRouter()
   const [tools] = useConfigLocalState('toolbox.tools')
@@ -42,8 +48,21 @@ export function ToolboxPopover(): React.JSX.Element {
       <Tooltip>
         <PopoverTrigger asChild>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="min-h-0 min-w-0 p-2 non-draggable">
-              <span className="icon-[mdi--toolbox-outline] w-5 h-5"></span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'min-h-0 min-w-0 non-draggable',
+                itemClass ?? 'p-2'
+              )}
+            >
+              <span className="icon-[mdi--toolbox-outline] w-5 h-5 shrink-0"></span>
+              <span
+                className="text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"
+                style={{ opacity: labelOpacity }}
+              >
+                {t('toolbox.title')}
+              </span>
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>

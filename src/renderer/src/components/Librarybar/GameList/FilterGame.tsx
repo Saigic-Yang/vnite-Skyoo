@@ -1,5 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@ui/accordion'
-import { ScrollArea } from '@ui/scroll-area'
+import { PreservedScrollArea } from '@ui/preserved-scroll-area'
 import { useTranslation } from 'react-i18next'
 import { LazyLoadComponent, trackWindowScroll } from 'react-lazy-load-image-component'
 import { useConfigState } from '~/hooks'
@@ -20,7 +20,7 @@ export function FilterGameComponent({
   const games = sortGames(sort, filterGames(filter))
   const { t } = useTranslation('game')
   return (
-    <ScrollArea className={cn('w-full h-full pr-3 -mr-3 pb-1')}>
+    <PreservedScrollArea scrollKey="FilterGame" className={cn('w-full h-full pr-3 -mr-3 pb-1')}>
       <Accordion
         type="multiple"
         defaultValue={['filter']}
@@ -51,7 +51,7 @@ export function FilterGameComponent({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-    </ScrollArea>
+    </PreservedScrollArea>
   )
 }
 

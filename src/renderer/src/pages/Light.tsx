@@ -38,10 +38,18 @@ export function Light(): React.JSX.Element {
   const [nsfwBlurLevel] = useConfigState('appearances.nsfwBlurLevel')
   const [nsfw] = useGameState(gameId, 'apperance.nsfw')
   const detailBackgroundRef = useRef<HTMLDivElement>(null)
+  const tiltLayerRef = useRef<HTMLDivElement>(null)
   const parallaxContainerRef = useRef<HTMLDivElement>(null)
   const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
   const { isDark } = useTheme()
   const refreshId = useLightStore((state) => state.refreshId)
+
+  // 是否处于游戏详情页（背景层是否启用）
+  const isGameDetailRoute = pathname.includes('/library/games/') && gameId !== ''
+
+  // 侧栏宽度（可由右侧分隔条拖动调整）
+  const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
+  const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
 
   const [showHeaderImage] = useConfigState('appearances.gameDetail.showHeaderImage')
   const [gameGlassBackgroundImage] = useConfigState('appearances.gameDetail.glassBackgroundImage')
@@ -195,14 +203,72 @@ export function Light(): React.JSX.Element {
     getAttachmentInfo
   ])
 
+  /**
+   * 鼠标跟随的轻微 3D 立体效果（仅游戏详情页的背景层）。
+   * 变换写在最外层容器上，跟滚动用的 translateY 在内层，互不干扰。
+   */
+  useEffect(() => {
+    if (!isGameDetailRoute) return
+
+    let frame = 0
+    let targetX = 0
+    let targetY = 0
+    // 鼠标悬停在徽章上时暂停背景 3D，避免两套动效打架
+    let paused = false
+
+    const handleLogoHover = (event: Event): void => {
+      paused = Boolean((event as CustomEvent).detail)
+      if (paused) {
+        const layer = tiltLayerRef.current
+        if (layer) {
+          layer.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg) scale(1.02)'
+        }
+      }
+    }
+
+    const handleMove = (event: MouseEvent): void => {
+      if (paused) return
+      const width = window.innerWidth || 1
+      const height = window.innerHeight || 1
+      // 归一化到 -1 ~ 1
+      targetX = (event.clientX / width - 0.5) * 2
+      targetY = (event.clientY / height - 0.5) * 2
+
+      if (frame) return
+      frame = window.requestAnimationFrame(() => {
+        frame = 0
+        const layer = tiltLayerRef.current
+        if (!layer) return
+        // 幅度刻意做得小：±2° 左右，只做「轻微」的立体感
+        layer.style.transform = `perspective(1400px) rotateX(${(-targetY * 2.2).toFixed(
+          2
+        )}deg) rotateY(${(targetX * 2.6).toFixed(2)}deg) scale(1.045)`
+      })
+    }
+
+    const handleLeave = (): void => {
+      const layer = tiltLayerRef.current
+      if (layer) {
+        layer.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg) scale(1.02)'
+      }
+    }
+
+    window.addEventListener('mousemove', handleMove)
+    window.addEventListener('game-logo-hover', handleLogoHover as EventListener)
+    document.addEventListener('mouseleave', handleLeave)
+    return (): void => {
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('game-logo-hover', handleLogoHover as EventListener)
+      document.removeEventListener('mouseleave', handleLeave)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [isGameDetailRoute])
+
   // Update CSS variables for glass effect
   useEffect(() => {
     document.documentElement.style.setProperty('--glass-opacity', glassOpacity * 100 + '%')
     document.documentElement.style.setProperty('--glass-blur', `${glassBlur}px`)
   }, [glassOpacity, glassBlur])
-
-  // Check if the game detail page background should be shown
-  const isGameDetailRoute = pathname.includes('/library/games/') && gameId !== ''
 
   return (
     <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10">
@@ -212,23 +278,33 @@ export function Light(): React.JSX.Element {
           ref={detailBackgroundRef}
           className={cn('absolute overflow-hidden', 'will-change-transform')}
           style={{
-            left: `${libraryBarWidth + 57 - (libraryBarWidth === 0 ? 1 : 0)}px`,
+            left: `${libraryBarWidth + sidebarWidth + 1 - (libraryBarWidth === 0 ? 1 : 0)}px`,
             top: '50px',
-            width: `calc(100% - ${libraryBarWidth + 57 - (libraryBarWidth === 0 ? 1 : 0)}px)`,
+            width: `calc(100% - ${libraryBarWidth + sidebarWidth + 1 - (libraryBarWidth === 0 ? 1 : 0)}px)`,
             height: 'calc(100% - 50px)',
             zIndex: 15,
             clipPath: 'inset(0 0 0 0)' // Ensure content does not overflow this container
           }}
         >
-          {/* Internal container for parallax scrolling effect */}
+          {/* 3D 跟随层：变换放在被裁剪容器内部，旋转时不会露出边角 */}
           <div
-            ref={parallaxContainerRef}
+            ref={tiltLayerRef}
             style={{
               width: '100%',
               height: '100%',
-              maskImage: 'linear-gradient(to bottom, black 30%, transparent 70%)'
+              transition: 'transform 260ms ease-out',
+              transformStyle: 'preserve-3d'
             }}
           >
+            {/* Internal container for parallax scrolling effect */}
+            <div
+              ref={parallaxContainerRef}
+              style={{
+                width: '100%',
+                height: '100%',
+                maskImage: 'linear-gradient(to bottom, black 30%, transparent 70%)'
+              }}
+            >
             {showHeaderImage ? (
               <CrossfadeImage
                 src={imageUrl}
@@ -251,6 +327,7 @@ export function Light(): React.JSX.Element {
                 className={`w-full h-auto max-h-(--header-max-height) object-top object-cover`}
               ></div>
             )}
+            </div>
           </div>
         </div>
       )}

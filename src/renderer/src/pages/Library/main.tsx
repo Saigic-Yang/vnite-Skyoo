@@ -14,6 +14,8 @@ export function Library({ className }: { className?: string }): React.JSX.Elemen
   const setLibraryBarWidth = useLibraryStore((state) => state.setLibraryBarWidth)
   const resetLibraryBarWidth = useLibraryStore((state) => state.resetLibraryBarWidth)
 
+  // 本地文件是否存在改为「按需记忆」：点击浏览本地文件时才检查并记录，不再全局遍历
+
   // Dragging state
   const [isDragging, setIsDragging] = useState(false)
   const dragHandleRef = useRef<HTMLDivElement>(null)

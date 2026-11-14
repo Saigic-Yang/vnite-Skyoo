@@ -177,7 +177,39 @@
       "compact": "紧凑",
       "detailed": "详细"
     },
+    "verdicts": {
+      "score1": "差评如潮",
+      "score23": "多半差评",
+      "score45": "褒贬不一",
+      "score67": "多半好评",
+      "score89": "特别好评",
+      "score10": "好评如潮"
+    },
     "categories": {
+      "score1": {
+        "title": "1 分",
+        "description": "体验极差，不建议尝试"
+      },
+      "score23": {
+        "title": "2~3 分",
+        "description": "问题较多，谨慎尝试"
+      },
+      "score45": {
+        "title": "4~5 分",
+        "description": "表现一般，存在明显缺点"
+      },
+      "score67": {
+        "title": "6~7 分",
+        "description": "品质尚可，值得一玩"
+      },
+      "score89": {
+        "title": "8~9 分",
+        "description": "非常优秀，推荐体验"
+      },
+      "score10": {
+        "title": "10 分",
+        "description": "卓越体验，强烈推荐"
+      },
       "excellent": {
         "title": "极佳体验 (9-10分)",
         "description": "这些游戏提供了卓越的体验，强烈推荐"

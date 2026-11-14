@@ -64,7 +64,14 @@ export interface gameDoc {
     lastRunDate: string
     score: number
     playTime: number
-    playStatus: 'unplayed' | 'playing' | 'partial' | 'finished' | 'multiple' | 'shelved'
+    playStatus:
+      | 'unplayed'
+      | 'playing'
+      | 'partial'
+      | 'finished'
+      | 'multiple'
+      | 'shelved'
+      | 'deleted'
     hideFromRecentGames: boolean
     timers: {
       start: string
@@ -113,6 +120,51 @@ export interface gameDoc {
     }
     nsfw: boolean
   }
+  /** 评分聚合：入库时抓取一次，可手动刷新（Skyoo 新增） */
+  ratings?: GameRatings
+}
+
+export interface GameSteamRatingRow {
+  /** 评价文案，如「特别好评」 */
+  summary: string
+  /** 好评率（0-100） */
+  percent: number
+  /** 评测数 */
+  total: number
+}
+
+export interface GameSteamRating extends GameSteamRatingRow {
+  /** 商店页链接 */
+  url: string
+  /** 最近 30 天评测 */
+  recent?: GameSteamRatingRow
+  /** 简体中文评测 */
+  chinese?: GameSteamRatingRow
+}
+
+export interface GameSourceRating {
+  score: number
+  url?: string
+  updatedAt?: string
+}
+
+export interface GameRatings {
+  steam?: GameSteamRating
+  metacritic?: GameSourceRating
+  opencritic?: GameSourceRating & { percentRecommended?: number; reviewCount?: number }
+  howlongtobeat?: {
+    main?: number
+    mainExtra?: number
+    completionist?: number
+    url?: string
+    updatedAt?: string
+  }
+  /** 各站的「本作详情页」直链（抓取时解析，解析不到则前端退回站内搜索） */
+  links?: {
+    metacritic?: string
+    opencritic?: string
+  }
+  updatedAt?: string
 }
 
 export interface gameCollectionDocs {
@@ -303,6 +355,7 @@ export const DEFAULT_PLAY_STATUS_ORDER: gameDoc['record']['playStatus'][] = [
   'partial',
   'finished',
   'multiple',
+  'deleted',
   'shelved'
 ]
 

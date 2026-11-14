@@ -178,7 +178,8 @@ export function CollectionGamesComponent({
                 'grid grid-cols-[repeat(auto-fill,148px)]',
                 // '3xl:grid-cols-[repeat(auto-fill,176px)]',
                 'justify-between gap-6 gap-y-[30px] w-full',
-                'pt-2 pb-6 pl-5 pr-5' // Add inner margins to show shadows
+                // 顶部与左右留出空间，卡片悬停放大时才不会被滚动容器裁掉
+                'pt-10 pb-6 pl-6 pr-6'
               )}
             >
               {sortedGames?.map((gameId, index) => (

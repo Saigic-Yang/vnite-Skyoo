@@ -1,5 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@ui/accordion'
-import { ScrollArea } from '@ui/scroll-area'
+import { PreservedScrollArea } from '@ui/preserved-scroll-area'
 import { useTranslation } from 'react-i18next'
 import { LazyLoadComponent, trackWindowScroll } from 'react-lazy-load-image-component'
 import { useConfigState } from '~/hooks'
@@ -34,7 +34,10 @@ export function PlayStatusGamesComponent({
   const { t } = useTranslation('game')
 
   return (
-    <ScrollArea className={cn('w-full h-full pr-3 -mr-3 pt-1 pb-1')}>
+    <PreservedScrollArea
+      scrollKey="playStatus"
+      className={cn('w-full h-full pr-3 -mr-3 pt-1 pb-1')}
+    >
       {fields.length > 0 ? (
         <Accordion
           key={`record.playStatus`}
@@ -89,7 +92,7 @@ export function PlayStatusGamesComponent({
           <AllGameComponent scrollPosition={scrollPosition} />
         </Accordion>
       )}
-    </ScrollArea>
+    </PreservedScrollArea>
   )
 }
 

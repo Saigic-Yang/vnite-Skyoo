@@ -643,7 +643,22 @@ async function convertConfig(basePath: string): Promise<void> {
       showNSFWBlurSwitcher: true,
       showLocalGameFilterSwitcher: true,
       showCustomVisibilityFilterSwitcher: false,
-      showToolbox: true
+      showToolbox: true,
+      width: 56,
+      itemOrder: [
+        'library',
+        'records',
+        'scanner',
+        'transformer',
+        'plugin',
+        'databaseInspector',
+        'customize',
+        'addGame',
+        'toolbox',
+        'settings'
+      ],
+      showLabels: false,
+      hiddenItems: ['scanner', 'transformer', 'plugin']
     })
 
     // Converting Local Configurations - Game Associations

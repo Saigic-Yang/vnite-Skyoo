@@ -107,12 +107,24 @@ export interface configDocs {
       showLocalGameFilterSwitcher: boolean
       showCustomVisibilityFilterSwitcher: boolean
       showToolbox: boolean
+      /** 侧栏宽度（拖动右侧分隔条） */
+      width: number
+      /** 侧栏条目顺序 */
+      itemOrder: string[]
+      /** 侧栏是否显示文字（图标 + 文字 / 仅图标），由宽度自动推导 */
+      showLabels: boolean
+      /** 被隐藏的侧栏条目 id */
+      hiddenItems: string[]
     }
     background: {
       customBackground: boolean
     }
     showcase: {
       showPlayButtonOnPoster: boolean
+    }
+    /** 顶栏按钮的自定义顺序（拖动排序后持久化） */
+    toolbar: {
+      buttonOrder: string[]
     }
     scrollbar: {
       blur: number
@@ -434,13 +446,31 @@ export const DEFAULT_CONFIG_VALUES: Readonly<configDocs> = {
       showNSFWBlurSwitcher: true,
       showLocalGameFilterSwitcher: true,
       showCustomVisibilityFilterSwitcher: false,
-      showToolbox: true
+      showToolbox: true,
+      width: 56,
+      itemOrder: [
+        'library',
+        'records',
+        'scanner',
+        'transformer',
+        'plugin',
+        'databaseInspector',
+        'customize',
+        'addGame',
+        'toolbox',
+        'settings'
+      ],
+      showLabels: false,
+      hiddenItems: ['scanner', 'transformer', 'plugin']
     },
     background: {
       customBackground: true
     },
     showcase: {
       showPlayButtonOnPoster: true
+    },
+    toolbar: {
+      buttonOrder: ['home', 'collections', 'allGames', 'filter', 'sort']
     },
     scrollbar: {
       blur: 32,

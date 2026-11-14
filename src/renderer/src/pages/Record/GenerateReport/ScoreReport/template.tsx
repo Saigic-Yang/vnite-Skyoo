@@ -42,7 +42,7 @@ function ScoreReportExportTemplate({
                       />
                     )}
                     {showScore && (
-                      <span className="score-report-score">{game.score.toFixed(1)}</span>
+                      <span className="score-report-score">{Math.trunc(game.score)}</span>
                     )}
                   </div>
                   <div className="score-report-game-name">{game.name}</div>

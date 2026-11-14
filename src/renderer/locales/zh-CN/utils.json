@@ -72,6 +72,7 @@
       "partial": "部分完成",
       "finished": "已完成",
       "multiple": "多周目",
+      "deleted": "已删除",
       "shelved": "搁置中",
       "unknown": "未知状态"
     }

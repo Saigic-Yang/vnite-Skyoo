@@ -7,12 +7,18 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from '~/components/ui/context-menu'
-import { useConfigState, useGameState } from '~/hooks'
+import { toast } from 'sonner'
+import { ipcManager } from '~/app/ipc'
+import { Button } from '~/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
+import { useConfigState, useGameLocalState, useGameState } from '~/hooks'
+import { usePathExistsStore } from '~/stores/pathExistsStore'
 import { useRunningGames } from '~/pages/Library/store'
 import { cn, copyWithToast } from '~/utils'
 import { GameImage } from '../ui/game-image'
 import { Config } from './Config'
 import { Record } from './Overview/Record'
+import { RatingsBar } from './RatingsBar'
 import { StartGame } from './StartGame'
 import { StopGame } from './StopGame'
 import { useGameDetailStore } from './store'
@@ -31,6 +37,12 @@ export function Header({
   const [showOriginalNameInGameHeader] = useConfigState('game.gameHeader.showOriginalName')
   const [showCover] = useConfigState('appearances.gameDetail.showCover')
   const [nsfw] = useGameState(gameId, 'apperance.nsfw')
+  const [rootPath] = useGameLocalState(gameId, 'utils.rootPath')
+  const [pathMissing, setPathMissing] = React.useState(false)
+  const gamePathState = usePathExistsStore((state) => state.gamePaths[gameId])
+  const recheckPath = usePathExistsStore((state) => state.recheck)
+  // 设置过路径但文件已不存在 → 图标标红
+  const rootPathMissing = Boolean(gamePathState?.hasPath) && gamePathState?.exists === false
   const [nsfwBlurLevel] = useConfigState('appearances.nsfwBlurLevel')
   const openPropertiesDialog = useGameDetailStore((state) => state.openPropertiesDialog)
   const openImageViewer = useGameDetailStore((state) => state.openImageViewer)
@@ -40,6 +52,21 @@ export function Header({
   const obfuscatedName = stringToBase64(name).slice(0, name.length)
 
   const { t } = useTranslation('game')
+
+  // 封面悬停：轻微放大 + 3D 跟随鼠标
+  const [coverTilt, setCoverTilt] = React.useState({ x: 0, y: 0, active: false })
+
+  const handleCoverMove = (event: React.MouseEvent<HTMLDivElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    setCoverTilt({
+      x: (event.clientX - rect.left) / rect.width - 0.5,
+      y: (event.clientY - rect.top) / rect.height - 0.5,
+      active: true
+    })
+  }
+
+  const resetCoverTilt = (): void => setCoverTilt({ x: 0, y: 0, active: false })
 
   return (
     <div className={cn('flex-col flex gap-5 px-7 py-5 pl-6 pt-6 relative', className)}>
@@ -96,29 +123,87 @@ export function Header({
 
               {/* Configuration button */}
               <Config gameId={gameId} />
+
+              {/* 浏览本地文件（独立的文件夹按钮，取代右键菜单里的入口） */}
+              <div className="relative">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="thirdary"
+                      size="icon"
+                      className={cn(
+                        'h-[40px] w-[40px]',
+                        (pathMissing || rootPathMissing) && 'text-destructive'
+                      )}
+                      onClick={async () => {
+                        if (!rootPath) {
+                          toast.warning(t('detail.manage.notifications.gamePathNotSet'))
+                          return
+                        }
+                        const exists = await recheckPath(gameId)
+                        if (!exists) {
+                          setPathMissing(true)
+                          toast.error('本地文件已删除')
+                          return
+                        }
+                        setPathMissing(false)
+                        void ipcManager.invoke('system:open-path-in-explorer', rootPath)
+                      }}
+                    >
+                      <span className="icon-[mdi--folder-open-outline] w-5 h-5"></span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {t('detail.manage.browseLocalFiles')}
+                  </TooltipContent>
+                </Tooltip>
+                {pathMissing && (
+                  <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-xs text-destructive">
+                    本地文件已删除
+                  </span>
+                )}
+              </div>
+
+              {/* 评分徽章：我的评分 / Steam / Metacritic / OpenCritic + 刷新 */}
+              <RatingsBar gameId={gameId} />
             </div>
           </div>
         </div>
         {/* Game cover image with context menu */}
         <ContextMenu>
           <ContextMenuTrigger asChild>
-            <div className="relative lg:mr-3 pb-1 shrink-0">
+            <div
+              className="relative lg:mr-3 pb-1 shrink-0"
+              style={{ perspective: '900px' }}
+              onMouseMove={handleCoverMove}
+              onMouseLeave={resetCoverTilt}
+            >
               {showCover && (
-                <GameImage
-                  gameId={gameId}
-                  key={`${gameId}-poster`}
-                  type="cover"
-                  blur={nsfw && nsfwBlurLevel >= NSFWBlurLevel.BlurImage}
-                  className={cn('w-auto h-[170px] object-cover rounded-lg shadow-md')}
-                  fallback={<div className="h-[170px]" />}
-                  onClick={() => {
-                    void openLargeGameMediaImage({
-                      gameId,
-                      type: 'cover',
-                      openImageViewer
-                    })
+                <div
+                  className={cn('transition-transform duration-200 ease-out will-change-transform')}
+                  style={{
+                    transform: `rotateX(${(-coverTilt.y * 18).toFixed(2)}deg) rotateY(${(
+                      coverTilt.x * 20
+                    ).toFixed(2)}deg) scale(${coverTilt.active ? 1.12 : 1})`,
+                    transformStyle: 'preserve-3d'
                   }}
-                />
+                >
+                  <GameImage
+                    gameId={gameId}
+                    key={`${gameId}-poster`}
+                    type="cover"
+                    blur={nsfw && nsfwBlurLevel >= NSFWBlurLevel.BlurImage}
+                    className={cn('w-auto h-[170px] object-cover rounded-lg shadow-md')}
+                    fallback={<div className="h-[170px]" />}
+                    onClick={() => {
+                      void openLargeGameMediaImage({
+                        gameId,
+                        type: 'cover',
+                        openImageViewer
+                      })
+                    }}
+                  />
+                </div>
               )}
             </div>
           </ContextMenuTrigger>

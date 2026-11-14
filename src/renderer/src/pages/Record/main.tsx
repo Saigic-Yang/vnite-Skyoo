@@ -8,7 +8,6 @@ import { cn } from '~/utils'
 import { GenerateReport } from './GenerateReport/main'
 import { MonthlyReport } from './MonthlyReport'
 import { RecordOverview } from './RecordOverview'
-import { ScoreReport } from './ScoreReport'
 import { WeeklyReport } from './WeeklyReport'
 import { YearlyReport } from './YearlyReport'
 
@@ -55,13 +54,16 @@ export function Record({ className }: { className?: string }): React.JSX.Element
             <HelpTooltip side="right">{t('hotkeyHelp')}</HelpTooltip>
           </div>
 
-          <Tabs value={search.tab} onValueChange={handleTabChange} className="w-full">
+          <Tabs
+            value={search.tab === 'scores' ? 'overview' : search.tab}
+            onValueChange={handleTabChange}
+            className="w-full"
+          >
             <TabsList className="mb-4">
               <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
               <TabsTrigger value="yearly">{t('tabs.yearly')}</TabsTrigger>
               <TabsTrigger value="monthly">{t('tabs.monthly')}</TabsTrigger>
               <TabsTrigger value="weekly">{t('tabs.weekly')}</TabsTrigger>
-              <TabsTrigger value="scores">{t('tabs.score')}</TabsTrigger>
               <TabsTrigger value="report">{t('tabs.report')}</TabsTrigger>
             </TabsList>
 
@@ -79,10 +81,6 @@ export function Record({ className }: { className?: string }): React.JSX.Element
 
             <TabsContent value="weekly">
               <WeeklyReport />
-            </TabsContent>
-
-            <TabsContent value="scores">
-              <ScoreReport />
             </TabsContent>
 
             <TabsContent value="report">

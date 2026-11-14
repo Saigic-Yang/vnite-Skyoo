@@ -1,6 +1,6 @@
 import { generateUUID } from '@appUtils'
 import { app, OpenDialogOptions } from 'electron'
-import { ConfigDBManager } from '~/core/database'
+import { ConfigDBManager, GameDBManager } from '~/core/database'
 import { ipcManager } from '~/core/ipc'
 import {
   changeForegroundWaitTime,
@@ -130,6 +130,50 @@ export function setupSystemIPC(): void {
   ipcManager.handle('system:open-path-in-explorer', async (_, filePath: string) => {
     await openPathInExplorer(filePath)
   })
+
+  ipcManager.handle('system:path-exists', async (_, targetPath: string): Promise<boolean> => {
+    const { existsSync } = await import('node:fs')
+    return Boolean(targetPath) && existsSync(targetPath)
+  })
+
+  // 从主进程直接读本地库，逐游戏检查 rootPath 是否存在（比渲染层读取更可靠）
+  ipcManager.handle(
+    'system:check-game-paths',
+    async (
+      _,
+      gameIds: string[]
+    ): Promise<Record<string, { hasPath: boolean; exists: boolean }>> => {
+      const { existsSync } = await import('node:fs')
+      const result: Record<string, { hasPath: boolean; exists: boolean }> = {}
+
+      for (const gameId of gameIds) {
+        try {
+          const rootPath = await GameDBManager.getGameLocalValue(gameId, 'utils.rootPath')
+          if (!rootPath) {
+            result[gameId] = { hasPath: false, exists: false }
+            continue
+          }
+          result[gameId] = { hasPath: true, exists: existsSync(rootPath) }
+        } catch {
+          result[gameId] = { hasPath: false, exists: false }
+        }
+      }
+      return result
+    }
+  )
+
+  ipcManager.handle(
+    'system:paths-exist',
+    async (_, paths: string[]): Promise<Record<string, boolean>> => {
+      const { existsSync } = await import('node:fs')
+      const result: Record<string, boolean> = {}
+      for (const p of paths) {
+        if (!p) continue
+        result[p] = existsSync(p)
+      }
+      return result
+    }
+  )
 
   ipcManager.handle('utils:open-database-path-in-explorer', async () => {
     await openDatabasePathInExplorer()

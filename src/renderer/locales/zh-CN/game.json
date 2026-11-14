@@ -2,6 +2,7 @@
   "librarybar": {
     "home": "主页",
     "collections": "收藏",
+    "dragToReorder": "按住拖动可以调整按钮顺序",
     "search": {
       "placeholder": "搜索",
       "tooltip": "支持通过游戏名、开发者、发行日期等元数据进行搜索"
@@ -84,8 +85,16 @@
     "loadingGames": "游戏数据加载中...",
     "sections": {
       "recentGames": "最近游戏",
+      "recentlyAdded": "最近入库",
       "collections": "我的收藏",
       "allGames": "所有游戏"
+    },
+    "recentlyAdded": {
+      "empty": "暂无最近入库的游戏"
+    },
+    "collections": {
+      "expandAll": "展开全部",
+      "collapse": "收起"
     },
     "sorting": {
       "title": "排序依据：",
@@ -263,6 +272,11 @@
         "placeholder": "输入游戏标题搜索"
       },
       "relatedSites": {
+        "steamStore": "Steam 商店",
+        "steamdb": "SteamDB",
+        "opencritic": "OpenCritic",
+        "metacritic": "Metacritic",
+        "howlongtobeat": "HowLongToBeat",
         "empty": "暂无相关网站",
         "addLink": "添加链接",
         "nameLabel": "网站名称",
@@ -325,6 +339,27 @@
           "searchError": "搜索出错: {{error}}",
           "selectRequired": "请至少选择一项附加信息"
         }
+      },
+      "ratings": {
+        "myScore": "我的评分",
+        "myScoreHint": "点击修改你的评分",
+        "steam": "Steam 总评",
+        "steamHint": "{{summary}}（共 {{total}} 篇评测）",
+        "chinese": "Steam 简中评价",
+        "scoreTitle": "选择评分",
+        "rowRecent": "最近评测",
+        "rowChinese": "简体中文评测",
+        "rowAll": "全部评测",
+        "colScope": "范围",
+        "colRating": "评价",
+        "colPercent": "好评率",
+        "colCount": "评测数",
+        "openStore": "点击打开 Steam 商店页",
+        "metacritic": "Metacritic",
+        "metacriticHint": "媒体均分，来自 Steam 商店接口",
+        "opencritic": "OpenCritic",
+        "opencriticHint": "基于 {{count}} 家媒体的评测",
+        "refresh": "刷新评分数据"
       },
       "record": {
         "title": "游玩数据",

@@ -2,12 +2,50 @@ import type { TFunction } from 'i18next'
 import type { GameMetaInfo } from '~/stores/game'
 import type { ScoreCategoryData } from './types'
 
+/** 评分为 1~10 的整数，按需求分成 6 组，每组标题使用不同颜色 */
 const SCORE_CATEGORIES = [
-  { id: 'excellent', minScore: 9, maxScore: 10, className: 'border-primary' },
-  { id: 'great', minScore: 8, maxScore: 8.9, className: 'border-secondary' },
-  { id: 'good', minScore: 7, maxScore: 7.9, className: 'border-accent' },
-  { id: 'average', minScore: 6, maxScore: 6.9, className: 'border-muted' },
-  { id: 'notRecommended', minScore: 0, maxScore: 5.9, className: 'border-destructive' }
+  {
+    id: 'score1',
+    minScore: 1,
+    maxScore: 1,
+    className: 'border-destructive',
+    titleClass: 'text-red-700 dark:text-red-500'
+  },
+  {
+    id: 'score23',
+    minScore: 2,
+    maxScore: 3,
+    className: 'border-destructive/70',
+    titleClass: 'text-amber-800 dark:text-amber-600'
+  },
+  {
+    id: 'score45',
+    minScore: 4,
+    maxScore: 5,
+    className: 'border-muted',
+    titleClass: 'text-yellow-600 dark:text-yellow-400'
+  },
+  {
+    id: 'score67',
+    minScore: 6,
+    maxScore: 7,
+    className: 'border-accent',
+    titleClass: 'text-blue-600 dark:text-blue-400'
+  },
+  {
+    id: 'score89',
+    minScore: 8,
+    maxScore: 9,
+    className: 'border-secondary',
+    titleClass: 'text-sky-500 dark:text-sky-400'
+  },
+  {
+    id: 'score10',
+    minScore: 10,
+    maxScore: 10,
+    className: 'border-primary',
+    titleClass: 'text-emerald-600 dark:text-emerald-400'
+  }
 ] as const
 
 export function createScoreReportCategories(
@@ -19,7 +57,8 @@ export function createScoreReportCategories(
     const games = gameIds
       .filter((gameId) => {
         const score = gameMetaIndex[gameId]?.score
-        return typeof score === 'number' && score >= category.minScore && score <= category.maxScore
+        if (typeof score !== 'number' || score < 0) return false
+        return score >= category.minScore && score <= category.maxScore
       })
       .sort((a, b) => {
         const scoreA = gameMetaIndex[a]?.score ?? -1
@@ -31,6 +70,7 @@ export function createScoreReportCategories(
       ...category,
       title: t(`score.categories.${category.id}.title`),
       description: t(`score.categories.${category.id}.description`),
+      verdict: t(`score.verdicts.${category.id}`),
       games
     }
   })

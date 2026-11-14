@@ -40,9 +40,9 @@ export function CollectionMenu({
       <DropdownMenuSub>
         <DropdownMenuSubTrigger>{t('detail.collection.addTo')}</DropdownMenuSubTrigger>
         <DropdownMenuPortal>
-          <DropdownMenuSubContent className="max-w-[300px]">
+          <DropdownMenuSubContent className="max-w-[320px]" style={{ maxHeight: 'none', overflow: 'visible' }}>
             {/* Display collections that do not contain the game */}
-            <div className={cn('max-h-[224px] overflow-auto scrollbar-base-thin')}>
+            <div className={cn('overflow-visible')}>
               {sortedCollections
                 .filter(([key]) => !gameInCollectionsId.includes(key))
                 .map(([key, value]) => (
@@ -73,7 +73,7 @@ export function CollectionMenu({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>{t('detail.collection.removeFrom')}</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="max-w-[300px]">
+            <DropdownMenuSubContent className="max-w-[320px]" style={{ maxHeight: 'none', overflow: 'visible' }}>
               {/* Only show if the game is in at least one collection */}
               {sortedCollections
                 .filter(([key]) => gameInCollectionsId.includes(key))

@@ -2,7 +2,7 @@ import { NSFWBlurLevel } from '@appTypes/models'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HoverCardAnimation } from '~/components/animations/HoverCard'
+import { useTilt } from '~/components/animations/useTilt'
 import { GameNavCM } from '~/components/contextMenu/GameNavCM'
 import { AddCollectionDialog } from '~/components/dialog/AddCollectionDialog'
 import { PlayTimeEditorDialog } from '~/components/Game/Config/ManageMenu/PlayTimeEditorDialog'
@@ -46,6 +46,8 @@ export function BigGamePoster({
   const [isStorageSizeDialogOpen, setIsStorageSizeDialogOpen] = useState(false)
   const [showPlayButtonOnPoster] = useConfigState('appearances.showcase.showPlayButtonOnPoster')
   const { t } = useTranslation('game')
+  // 悬停 3D 微动效（与详情页封面同强度）
+  const tilt = useTilt(18, 1.12)
 
   const name = gameData?.name ?? ''
   const stringToBase64 = (str: string): string =>
@@ -119,23 +121,25 @@ export function BigGamePoster({
 
   return (
     <ContextMenu>
-      <div className="relative">
+      <div className="relative hover:z-30 focus-within:z-30">
         <ContextMenuTrigger className={cn('')}>
           <div
             className="flex flex-col items-center justify-center gap-[8px] cursor-pointer group"
             onClick={handleGameClick}
           >
             <div
+              {...tilt.bind}
+              style={tilt.style}
               className={cn(
                 'rounded-lg shadow-md',
-                'transition-all duration-300 ease-in-out',
+                'transition-shadow duration-200 ease-out group-hover:shadow-xl',
                 isSelected
                   ? 'ring-2 ring-primary'
                   : 'ring-0 ring-border group-hover:ring-2 group-hover:ring-primary',
                 'relative overflow-hidden group'
               )}
             >
-              <HoverCardAnimation>
+              <div className="relative overflow-hidden rounded-lg">
                 <GameImage
                   onClick={handleGameClick}
                   gameId={gameId}
@@ -159,7 +163,7 @@ export function BigGamePoster({
                     />
                   }
                 />
-              </HoverCardAnimation>
+              </div>
 
               {/* Hover overlay */}
               <div

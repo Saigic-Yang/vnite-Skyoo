@@ -25,6 +25,7 @@ function getGamePlayStatus(gameId: string, t: (key: string) => string): string {
     partial: t('utils:game.playStatus.partial'),
     finished: t('utils:game.playStatus.finished'),
     multiple: t('utils:game.playStatus.multiple'),
+    deleted: t('utils:game.playStatus.deleted'),
     shelved: t('utils:game.playStatus.shelved')
   }
 
@@ -55,7 +56,7 @@ export function GameScoreCard({ gameId }: GameScoreCardProps): React.JSX.Element
               className="absolute px-2 py-1 text-xs font-medium rounded-full bottom-2 right-2 bg-primary/90 hover:bg-accent/90 text-primary-foreground backdrop-blur-sm"
               onClick={() => openScoreEditor(gameId)}
             >
-              {score.toFixed(1)}
+              {score === -1 ? '-' : Math.trunc(score)}
             </div>
           </div>
           <div className="px-1 mt-2 text-sm font-medium text-center truncate">{gameInfo.name}</div>
@@ -114,7 +115,7 @@ export function GameScoreCard({ gameId }: GameScoreCardProps): React.JSX.Element
                 className="flex items-center justify-center text-lg font-bold rounded-full shadow-md w-14 h-14 bg-primary hover:bg-accent cursor-pointer text-primary-foreground"
                 onClick={() => openScoreEditor(gameId)}
               >
-                {score.toFixed(1)}
+                {score === -1 ? '-' : Math.trunc(score)}
               </div>
               <span className="mt-1 text-xs text-muted-foreground">
                 {t('score.gameInfo.ratingLabel')}

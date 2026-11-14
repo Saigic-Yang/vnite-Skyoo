@@ -57,7 +57,7 @@ export function PlayButton({
         variant={config.variant}
         className={cn(
           'rounded-full w-full h-full p-0',
-          'peer transition-transform duration-200 ease-in-out hover:scale-150',
+          'peer transition-transform duration-150 ease-out hover:scale-110',
           config.buttonClassName
         )}
         onClick={getHandler(type)}

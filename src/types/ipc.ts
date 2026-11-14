@@ -9,7 +9,14 @@ import { ReportExportRequest, ReportExportResponse } from '@appTypes/report'
 import { BatchUpdateGameMetadataProgress, OverallScanProgress } from '@appTypes/utils'
 import { ProgressInfo, UpdateCheckResult } from 'electron-updater'
 import type { GameMediaType, LauncherPresetApplyResult } from './models'
-import { BatchGameInfo, configDocs, configLocalDocs, gameDoc, GameTimerStatus } from './models'
+import {
+  BatchGameInfo,
+  configDocs,
+  configLocalDocs,
+  gameDoc,
+  GameRatings,
+  GameTimerStatus
+} from './models'
 import { GameDatabaseStorageDetail, LocalDatabaseStorageReport } from './models/databaseInspector'
 import {
   PluginConfiguration,
@@ -92,6 +99,11 @@ type MainIpcEvents =
       'system:read-file-buffer': (filePath: string) => Buffer
       'system:write-text-file': (filePath: string, content: string) => void
       'system:open-path-in-explorer': (filePath: string) => void
+      'system:path-exists': (targetPath: string) => boolean
+      'system:paths-exist': (paths: string[]) => Record<string, boolean>
+      'system:check-game-paths': (
+        gameIds: string[]
+      ) => Record<string, { hasPath: boolean; exists: boolean }>
       'system:get-language': () => string
       'system:check-admin-permissions': () => boolean
       'system:check-if-portable-directory-needs-admin-rights': () => boolean
@@ -106,6 +118,7 @@ type MainIpcEvents =
       'app:get-app-version': () => string
       'app:is-portable-mode': () => boolean
       'app:is-updater-enabled': () => boolean
+      'ratings:refresh': (gameId: string) => GameRatings | null
       'app:switch-database-mode': () => void
 
       'utils:open-database-path-in-explorer': () => void

@@ -1,34 +1,27 @@
 import { NSFWFilterMode } from '@appTypes/models'
 import { SeparatorDashed } from '@ui/separator-dashed'
-import { throttle } from 'lodash'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '~/components/ui/button'
 import { useConfigState } from '~/hooks'
 import { useLibraryStore } from '~/pages/Library/store'
 import { useGameCollectionStore } from '~/stores'
 import { useVisibleGameIds } from '~/stores/game'
 import { cn } from '~/utils'
 import { CollectionPoster } from './posters/CollectionPoster'
+import { TwoRowStrip } from './TwoRowStrip'
 
+/**
+ * 我的收藏：两行显示 + 底部可拖动导航条（与「最近游戏」一致）
+ */
 export function Collections(): React.JSX.Element {
   const [nsfwFilterMode] = useConfigState('appearances.nsfwFilterMode')
   const collections = useGameCollectionStore((state) => state.documents)
   const visibleGameIds = useVisibleGameIds()
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const scroll = throttle((direction: 'left' | 'right'): void => {
-    if (!scrollContainerRef.current) return
-    const scrollAmount = 872
-    const container = scrollContainerRef.current
-    container.scrollTo({
-      left: container.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount),
-      behavior: 'smooth'
-    })
-  }, 750)
   const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
+  const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
   const visibleGameIdSet = useMemo(() => new Set(visibleGameIds), [visibleGameIds])
 
-  // Sort collections by the sort field
   const sortedCollectionIds = useMemo(() => {
     return Object.values(collections)
       .sort((a, b) => a.sort - b.sort)
@@ -41,57 +34,28 @@ export function Collections(): React.JSX.Element {
   return (
     <div
       className={cn('flex flex-col gap-1')}
-      style={{ width: `calc(100vw - ${libraryBarWidth + 60 - (libraryBarWidth === 0 ? 1 : 0)}px)` }}
+      style={{
+        width: `calc(100vw - ${libraryBarWidth + sidebarWidth + 4 - (libraryBarWidth === 0 ? 1 : 0)}px)`
+      }}
     >
-      <div className={cn('flex flex-row items-center gap-5 justify-center pl-5')}>
+      <div className={cn('flex flex-row items-center gap-5 justify-center pl-10')}>
         <div className={cn('text-accent-foreground select-none flex-shrink-0')}>
           {t('showcase.sections.collections')}
         </div>
         <SeparatorDashed className="border-border" />
-        <div className={cn('flex flex-row gap-2 items-center justify-center pr-5')}>
-          <Button
-            className={cn('hover:bg-transparent p-0 -mt-2 -mb-2')}
-            variant={'ghost'}
-            size={'icon'}
-            onClick={() => scroll('left')}
-          >
-            <span className={cn('icon-[mdi--keyboard-arrow-left] w-6 h-6')}></span>
-          </Button>
-          <Button
-            className={cn('hover:bg-transparent p-0 -mt-2 -mb-2')}
-            variant={'ghost'}
-            size={'icon'}
-            onClick={() => scroll('right')}
-          >
-            <span className={cn('icon-[mdi--keyboard-arrow-right] w-6 h-6')}></span>
-          </Button>
-        </div>
       </div>
-      {/* Game List Container */}
-      <div
-        ref={scrollContainerRef}
-        className={cn(
-          'flex flex-row gap-8 grow select-none',
-          'w-full overflow-x-auto scrollbar-none scroll-smooth',
-          'pt-3 pb-6 pl-5 pr-5' // Add inner margins to show shadows
-        )}
-      >
-        {sortedCollectionIds.length === 0 && (
-          <div className="text-muted-foreground text-sm">
-            {t('showcase.collection.noCollections')}
-          </div>
-        )}
-        {/* Render using the sorted ID array */}
-        {sortedCollectionIds.map((collectionId, index) => (
-          <div
-            key={`${collectionId}_${nsfwFilterMode}`}
-            className={cn(
-              'flex-shrink-0' // Preventing compression
-            )}
-          >
+
+      {sortedCollectionIds.length === 0 ? (
+        <div className="text-muted-foreground text-sm pl-5">
+          {t('showcase.collection.noCollections')}
+        </div>
+      ) : (
+        <TwoRowStrip
+          ids={sortedCollectionIds}
+          renderItem={(collectionId, index) => (
             <CollectionPoster
               collectionId={collectionId}
-              parentGap={32} // Gap(px) between posters
+              parentGap={32}
               position={
                 (index === 0 && 'left') ||
                 (index === sortedCollectionIds.length - 1 && 'right') ||
@@ -101,9 +65,9 @@ export function Collections(): React.JSX.Element {
                 nsfwFilterMode === NSFWFilterMode.All ? 'reorder-collections' : undefined
               }
             />
-          </div>
-        ))}
-      </div>
+          )}
+        />
+      )}
     </div>
   )
 }

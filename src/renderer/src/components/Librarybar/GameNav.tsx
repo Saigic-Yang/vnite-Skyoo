@@ -15,7 +15,11 @@ import { useGamePathStore } from '~/stores/game/gamePathStore'
 import { cn, formatDurationCompact, formatStorageSize, startGame } from '~/utils'
 import { GameNavCM } from '../contextMenu/GameNavCM'
 import { InformationDialog } from '../Game/Overview/Information/InformationDialog'
-import { PLAY_STATUS_COLORS, PLAY_STATUS_ICONS } from '../Game/Overview/Record/RecordIcon'
+import {
+  PLAY_STATUS_BAR_COLORS,
+  PLAY_STATUS_COLORS,
+  PLAY_STATUS_ICONS
+} from '../Game/Overview/Record/RecordIcon'
 import { BatchGameNavCM } from '../GameBatchEditor/BatchGameNavCM'
 import { useGameBatchEditorStore } from '../GameBatchEditor/store'
 import { useTheme } from '../ThemeProvider'
@@ -224,12 +228,30 @@ export function GameNav({
         case 'gameName': {
           navLayout.push(
             expanded ? (
-              <span key={`${gameId}-name`} className={cn('whitespace-nowrap flex-1')}>
-                {gameName}
+              <span
+                key={`${gameId}-name`}
+                className="whitespace-nowrap flex-1 flex items-center gap-1 min-w-0"
+              >
+                <span
+                  className={cn(
+                    'h-[12px] w-[2px] rounded-full shrink-0',
+                    PLAY_STATUS_BAR_COLORS[playStatus]
+                  )}
+                />
+                <span className="truncate">{gameName}</span>
               </span>
             ) : (
-              <div key={`${gameId}-name`} className={cn('relative flex-1 min-w-0')}>
-                <span ref={nameDisplayRef} className={cn('block truncate')}>
+              <div
+                key={`${gameId}-name`}
+                className={cn('relative flex-1 min-w-0 flex items-center gap-1')}
+              >
+                <span
+                  className={cn(
+                    'h-[12px] w-[2px] rounded-full shrink-0',
+                    PLAY_STATUS_BAR_COLORS[playStatus]
+                  )}
+                />
+                <span ref={nameDisplayRef} className="block truncate">
                   {nsfw && nsfwBlurLevel >= NSFWBlurLevel.BlurImageAndTitle
                     ? obfuscatedGameName
                     : gameName}
@@ -262,7 +284,7 @@ export function GameNav({
             } else if (sortInfoBy === 'record.score' && score !== -1) {
               navLayout.push(
                 <span key={`${gameId}-sort-score`} className="flex-shrink-0 text-muted-foreground">
-                  {score.toFixed(1)}
+                  {Math.trunc(score)}
                 </span>
               )
             } else if (sortInfoBy === 'record.storageSize' && storageSize >= 0) {

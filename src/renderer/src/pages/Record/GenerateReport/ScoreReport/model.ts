@@ -92,7 +92,7 @@ export function collectScoreReportText(model: ScoreReportExportModel): string {
   for (const category of model.categories) {
     text.push(category.countLabel)
     for (const game of category.games) {
-      text.push(game.name, game.score.toFixed(1))
+      text.push(game.name, String(Math.trunc(game.score)))
     }
   }
 

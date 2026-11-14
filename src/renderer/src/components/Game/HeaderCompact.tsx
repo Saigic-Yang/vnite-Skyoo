@@ -13,7 +13,7 @@ import { useConfigState, useGameState } from '~/hooks'
 import { useRunningGames } from '~/pages/Library/store'
 import { cn, copyWithToast, formatStorageSize } from '~/utils'
 import { Config } from './Config'
-import { PLAY_STATUS_ICONS } from './Overview/Record/RecordIcon'
+import { PLAY_STATUS_COLORS, PLAY_STATUS_ICONS } from './Overview/Record/RecordIcon'
 import { StartGame } from './StartGame'
 import { StopGame } from './StopGame'
 import { useGameDetailStore } from './store'
@@ -114,17 +114,21 @@ export function HeaderCompact({
 
             {/* Play Status */}
             <div className={cn('select-none cursor-pointer flex items-center gap-1')}>
-              <span className={PLAY_STATUS_ICONS[playStatus]}></span>
+              <span
+                className={cn(PLAY_STATUS_ICONS[playStatus], PLAY_STATUS_COLORS[playStatus])}
+              ></span>
               {t('detail.overview.record.playStatus')}
             </div>
-            <div>{t(`utils:game.playStatus.${playStatus}`)}</div>
+            <div className={PLAY_STATUS_COLORS[playStatus]}>
+              {t(`utils:game.playStatus.${playStatus}`)}
+            </div>
 
             {/* Score */}
             <div className={cn('select-none cursor-pointer flex items-center gap-1')}>
               <span className="icon-[mdi--starburst-outline]"></span>
               {t('detail.overview.record.rating')}
             </div>
-            <div>{score === -1 ? t('detail.overview.information.empty') : score.toFixed(1)}</div>
+            <div>{score === -1 ? t('detail.overview.information.empty') : Math.trunc(score)}</div>
 
             {/* Last Run Date */}
             <div className={cn('select-none cursor-pointer flex items-center gap-1')}>

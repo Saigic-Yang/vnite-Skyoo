@@ -12,9 +12,15 @@ export function StopGame({
 }): React.JSX.Element {
   const { t } = useTranslation('game')
   return (
-    <Button className={cn('', className)} variant={'secondary'} onClick={() => stopGame(gameId)}>
+    <Button
+      className={cn(
+        'bg-red-600 text-white hover:bg-red-500 dark:bg-red-600 dark:hover:bg-red-500',
+        className
+      )}
+      onClick={() => stopGame(gameId)}
+    >
       <div className={cn('flex flex-row gap-1 justify-center items-center p-3 w-full h-full')}>
-        <span className={cn('icon-[mdi--play] w-6 h-6 -ml-1')}></span>
+        <span className={cn('icon-[mdi--stop] w-6 h-6 -ml-1')}></span>
         <div className={cn('')}>{t('detail.actions.stop')}</div>
       </div>
     </Button>

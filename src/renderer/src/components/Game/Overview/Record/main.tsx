@@ -9,12 +9,11 @@ import { cn, formatStorageSize } from '~/utils'
 import { useGameDetailStore } from '../../store'
 import { RecalculateLastRunDateAlertDialog } from './RecalculateLastRunDateAlertDialog'
 import { RecordCard } from './RecordCard'
-import { PLAY_STATUS_ICONS } from './RecordIcon'
+import { PLAY_STATUS_COLORS, PLAY_STATUS_ICONS } from './RecordIcon'
 
 export function Record({ gameId }: { gameId: string }): React.JSX.Element {
   const { t } = useTranslation('game')
   const [lastRunDate] = useGameState(gameId, 'record.lastRunDate')
-  const [score] = useGameState(gameId, 'record.score')
   const [playingTime] = useGameState(gameId, 'record.playTime')
   const [playStatus, setPlayStatus] = useGameState(gameId, 'record.playStatus')
   const [storageSize] = useGameState(gameId, 'record.storageSize')
@@ -22,7 +21,6 @@ export function Record({ gameId }: { gameId: string }): React.JSX.Element {
   const setIsPlayTimeEditorDialogOpen = useGameDetailStore(
     (state) => state.setIsPlayTimeEditorDialogOpen
   )
-  const setIsScoreEditorDialogOpen = useGameDetailStore((state) => state.setIsScoreEditorDialogOpen)
   const setIsStorageSizeDialogOpen = useGameDetailStore((state) => state.setIsStorageSizeDialogOpen)
 
   const changePlayStatus = (status: typeof playStatus): void => {
@@ -64,8 +62,16 @@ export function Record({ gameId }: { gameId: string }): React.JSX.Element {
           asPopoverTrigger
           className={cn('')}
           title={t('detail.overview.record.playStatus')}
-          content={t(`utils:game.playStatus.${playStatus}`)}
-          icon={cn(PLAY_STATUS_ICONS[playStatus], 'w-[32px] h-[32px]')}
+          content={
+            <span className={PLAY_STATUS_COLORS[playStatus]}>
+              {t(`utils:game.playStatus.${playStatus}`)}
+            </span>
+          }
+          icon={cn(
+            PLAY_STATUS_ICONS[playStatus],
+            PLAY_STATUS_COLORS[playStatus],
+            'w-[32px] h-[32px]'
+          )}
         />
         <PopoverContent className="max-w-[150px] p-1">
           <div className="flex flex-col">
@@ -78,21 +84,16 @@ export function Record({ gameId }: { gameId: string }): React.JSX.Element {
                   'hover:bg-accent'
                 )}
               >
-                {t('utils:game.playStatus.' + opt)}
+                <span className={PLAY_STATUS_COLORS[opt]}>
+                  {t('utils:game.playStatus.' + opt)}
+                </span>
                 {playStatus === opt && <Check className="w-4 h-4" />}
               </div>
             ))}
           </div>
         </PopoverContent>
       </Popover>
-      {/* Score */}
-      <RecordCard
-        className={cn('')}
-        title={t('detail.overview.record.rating')}
-        content={score === -1 ? t('detail.overview.information.empty') : score.toFixed(1)}
-        icon="icon-[mdi--starburst-outline] w-[30px] h-[30px]"
-        onClick={() => setIsScoreEditorDialogOpen(true)}
-      />
+      {/* 我的评分已上移到头部按钮右侧的评分栏（RatingsBar） */}
       {/* Storage Size */}
       <RecordCard
         className={cn('')}

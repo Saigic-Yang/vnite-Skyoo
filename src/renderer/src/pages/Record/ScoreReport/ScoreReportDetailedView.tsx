@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '~/utils'
 import { GameScoreCard } from './GameScoreCard'
+import { ScoreCategoryHeader } from './ScoreCategoryHeader'
 import { ScoreCategoryData, ScoreReportViewProps } from './types'
 
 const lazyVisibilityCallbacks = new WeakMap<Element, (isVisible: boolean) => void>()
@@ -77,13 +78,8 @@ function DetailedScoreCategory({
   return (
     <Card className={cn('overflow-hidden border-0 border-l-4 p-0 shadow-md', category.className)}>
       <div className="border-b bg-muted/30 px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h3 className="text-lg font-semibold truncate">{category.title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-              {category.description}
-            </p>
-          </div>
+        <div className="flex items-start justify-between gap-4 group/scorecat">
+          <ScoreCategoryHeader category={category} />
           <Badge className="font-normal shrink-0 bg-accent text-accent-foreground">
             {t('score.categories.gamesCount', { count: category.games.length })}
           </Badge>

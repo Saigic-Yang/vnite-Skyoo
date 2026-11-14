@@ -239,7 +239,8 @@ export function AllGames(): React.JSX.Element {
       </div>
 
       {/* Game List Container */}
-      <div ref={gridOuterRef} className={cn('w-full pt-3 pl-5 pr-5 pb-6')}>
+      {/* 上方留出放大空间，避免第一行卡片悬停时被裁掉 */}
+      <div ref={gridOuterRef} className={cn('w-full pt-10 pl-6 pr-6 pb-6')}>
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div

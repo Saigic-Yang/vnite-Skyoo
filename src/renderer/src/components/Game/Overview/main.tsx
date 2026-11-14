@@ -1,6 +1,5 @@
 import { cn } from '~/utils'
 import { Description } from './description'
-import { ExtraInformation } from './extraInformation'
 import { Information } from './Information'
 import { RecommendedGamesCard } from './RecommendedGames'
 import { RelatedSites } from './RelatedSites'
@@ -23,9 +22,9 @@ export function Overview({ gameId }: { gameId: string }): React.JSX.Element {
       {/* Right/Bottom area - 1 column on large screens, full width on small screens */}
       <div className={cn('flex flex-col gap-5', 'col-span-1')}>
         <Information gameId={gameId} />
-        <ExtraInformation gameId={gameId} />
-        <RecommendedGamesCard gameId={gameId} />
+        {/* 相关网站移到基本信息下方、推荐游戏上方；附加信息仅隐藏 UI，代码保留 */}
         <RelatedSites gameId={gameId} />
+        <RecommendedGamesCard gameId={gameId} />
       </div>
     </div>
   )

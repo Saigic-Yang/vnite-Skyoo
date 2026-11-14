@@ -166,3 +166,28 @@ export async function getGameBackgroundsByName(gameName: string): Promise<string
   }
   return await getGameBackgrounds(games[0].id)
 }
+
+/** IGDB 游戏徽标（透明底 PNG） */
+export async function getGameLogos(gameId: string): Promise<string[]> {
+  try {
+    const query = `
+      fields url;
+      where game = ${gameId};
+      limit 20;
+    `
+    const client = createIGDBClient()
+    const response = await client.request<Array<{ url?: string }>>('game_logos', query)
+    if (!Array.isArray(response)) return []
+    return response
+      .map((item) => (item.url ? (item.url.startsWith('//') ? `https:${item.url}` : item.url) : ''))
+      .filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
+export async function getGameLogosByName(gameName: string): Promise<string[]> {
+  const games = await searchIGDBGames(gameName)
+  if (games.length === 0) return []
+  return await getGameLogos(games[0].id)
+}

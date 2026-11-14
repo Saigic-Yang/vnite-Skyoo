@@ -17,7 +17,7 @@ import { useLogStore } from '~/pages/Log'
 import { cn } from '~/utils'
 import { CloudSyncInfo } from '../pages/Config/CloudSync/Info'
 import { useCloudSyncStore } from '../pages/Config/CloudSync/store'
-import { LibraryTitlebarContent } from './LibraryTitlebarContent'
+import { LibraryTitlebarActions, LibraryTitlebarSearch } from './LibraryTitlebarContent'
 import { useTheme } from './ThemeProvider'
 
 export function Titlebar(): React.JSX.Element {
@@ -152,7 +152,7 @@ export function Titlebar(): React.JSX.Element {
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <span className={`${localGameFilterIconMap[localGameFilterMode]} w-4 h-4`} />
+      <span className={`${localGameFilterIconMap[localGameFilterMode]} w-6 h-6`} />
     </Button>
   )
 
@@ -180,7 +180,7 @@ export function Titlebar(): React.JSX.Element {
       className={cn(className)}
       onClick={() => setCustomVisibilityFilterEnabled(!customVisibilityFilterEnabled)}
     >
-      <span className={cn(customVisibilityFilterIcon, 'w-4 h-4')}></span>
+      <span className={cn(customVisibilityFilterIcon, 'w-6 h-6')}></span>
     </Button>
   )
 
@@ -206,7 +206,7 @@ export function Titlebar(): React.JSX.Element {
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <span className={`${nsfwBlurIconMap[nsfwBlurLevel]} w-4 h-4`} />
+      <span className={`${nsfwBlurIconMap[nsfwBlurLevel]} w-6 h-6`} />
       <span className="absolute bottom-[2px] right-0 text-[8px] font-bold px-1">
         {nsfwFilterIconMap[nsfwFilterMode]}
       </span>
@@ -263,7 +263,7 @@ export function Titlebar(): React.JSX.Element {
     <Button variant="thirdary" size="icon" className="relative h-[32px] w-[32px]">
       <span
         className={cn(
-          'icon-[mdi--eye] h-4 w-4',
+          'icon-[mdi--eye] w-6 h-6',
           hasAnyLibraryFilterActive
             ? 'absolute top-[5px] left-1/2 -translate-x-1/2'
             : 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
@@ -294,30 +294,39 @@ export function Titlebar(): React.JSX.Element {
 
       {/* 1. Main content area - Overflow content will be hidden when width is insufficient */}
       <div className="flex flex-row items-center w-full overflow-hidden">
-        {/* Left: General buttons */}
-        <div className="flex flex-row items-center gap-2 px-3 pr-2 shrink-0 h-full">
+        {/* 最左：书库搜索框 */}
+        {isLibraryRoute && (
+          <div className="flex flex-row items-center gap-2 pl-3 pr-2 shrink-0 h-full">
+            <LibraryTitlebarSearch />
+          </div>
+        )}
+
+        {/* 搜索框右侧：前进 / 后退（加长一倍，箭头放大） */}
+        <div className="flex flex-row items-center gap-2 px-2 shrink-0 h-full">
           <Button
             variant={'thirdary'}
             size={'icon'}
-            className={cn('h-[32px] w-[32px]')}
+            className={cn('h-[32px] w-[64px] p-0')}
             onClick={() => router.history.back()}
           >
-            <span className="icon-[mdi--arrow-left] w-4 h-4"></span>
+            <span className="icon-[mdi--arrow-left] w-6 h-6"></span>
           </Button>
           <Button
             variant={'thirdary'}
             size={'icon'}
-            className={cn('h-[32px] w-[32px]')}
+            className={cn('h-[32px] w-[64px] p-0')}
             onClick={() => router.history.forward()}
           >
-            <span className="icon-[mdi--arrow-right] w-4 h-4"></span>
+            <span className="icon-[mdi--arrow-right] w-6 h-6"></span>
           </Button>
         </div>
 
-        {/* Left: Library route specific buttons */}
-        <div className="flex flex-row items-center gap-2 px-3 shrink-0 h-full">
-          {isLibraryRoute && <LibraryTitlebarContent />}
-        </div>
+        {/* 其后：首页 / 收藏 / 筛选 / 排序 */}
+        {isLibraryRoute && (
+          <div className="flex flex-row items-center gap-2 px-3 shrink-0 h-full">
+            <LibraryTitlebarActions />
+          </div>
+        )}
 
         {/* Middle resizable space */}
         <div className="flex-grow"></div>
@@ -365,7 +374,7 @@ export function Titlebar(): React.JSX.Element {
                 className={cn('h-[32px] w-[32px]')}
                 onClick={() => setLogDialogIsOpen(true)}
               >
-                <span className={cn('icon-[mdi--file-document] w-4 h-4')}></span>
+                <span className={cn('icon-[mdi--file-document] w-6 h-6')}></span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">{t('actions.viewLogs')}</TooltipContent>
@@ -408,9 +417,9 @@ export function Titlebar(): React.JSX.Element {
                   onClick={toggleTheme}
                 >
                   {isDark ? (
-                    <span className={cn('icon-[mdi--weather-night] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--weather-night] w-6 h-6')}></span>
                   ) : (
-                    <span className={cn('icon-[mdi--weather-sunny] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--weather-sunny] w-6 h-6')}></span>
                   )}
                 </Button>
               </TooltipTrigger>
@@ -426,19 +435,19 @@ export function Titlebar(): React.JSX.Element {
               <PopoverTrigger>
                 {syncStatus?.status === 'syncing' ? (
                   <Button variant="thirdary" size={'icon'} className={cn('h-[32px] w-[32px]')}>
-                    <span className={cn('icon-[mdi--cloud-sync-outline] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--cloud-sync-outline] w-6 h-6')}></span>
                   </Button>
                 ) : syncStatus?.status === 'success' ? (
                   <Button variant="thirdary" size={'icon'} className={cn('h-[32px] w-[32px]')}>
-                    <span className={cn('icon-[mdi--cloud-check-outline] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--cloud-check-outline] w-6 h-6')}></span>
                   </Button>
                 ) : syncStatus?.status === 'error' ? (
                   <Button variant="thirdary" size={'icon'} className={cn('h-[32px] w-[32px]')}>
-                    <span className={cn('icon-[mdi--cloud-remove-outline] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--cloud-remove-outline] w-6 h-6')}></span>
                   </Button>
                 ) : (
                   <Button variant="thirdary" size={'icon'} className={cn('h-[32px] w-[32px]')}>
-                    <span className={cn('icon-[mdi--cloud-outline] w-4 h-4')}></span>
+                    <span className={cn('icon-[mdi--cloud-outline] w-6 h-6')}></span>
                   </Button>
                 )}
               </PopoverTrigger>
@@ -450,7 +459,7 @@ export function Titlebar(): React.JSX.Element {
             <Tooltip>
               <TooltipTrigger>
                 <Button variant="thirdary" size={'icon'} className={cn('h-[32px] w-[32px]')}>
-                  <span className={cn('icon-[mdi--cloud-cancel-outline] w-4 h-4')}></span>
+                  <span className={cn('icon-[mdi--cloud-cancel-outline] w-6 h-6')}></span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">{t('actions.cloudSyncDisabled')}</TooltipContent>

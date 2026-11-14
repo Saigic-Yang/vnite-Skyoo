@@ -1,7 +1,7 @@
 import { NSFWBlurLevel } from '@appTypes/models'
 import { useRouter } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { HoverCardAnimation } from '~/components/animations/HoverCard'
+import { useTilt } from '~/components/animations/useTilt'
 import { CollectionCM } from '~/components/contextMenu/CollectionCM'
 import { useGameBatchEditorStore } from '~/components/GameBatchEditor/store'
 import { GameImage } from '~/components/ui/game-image'
@@ -36,7 +36,7 @@ function Preview({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden w-[155px] h-[155px] rounded-lg',
+        'group relative overflow-hidden w-[148px] h-[222px] rounded-lg',
         'transition-all duration-300 ease-in-out',
         'border-4 border-dashed border-primary',
         !transparentBackground && ' bg-background'
@@ -81,6 +81,8 @@ export function CollectionPoster({
   const length = visibleGames.length // length > 0, guaranteed by parent component
   const gameId = visibleGames[0] || collectionGames[0]
   const [nsfw] = useGameState(gameId, 'apperance.nsfw')
+  // 悬停 3D 微动效（与详情页封面同强度）
+  const tilt = useTilt(18, 1.12)
 
   // Batch mode and selection state
   const { selectedGamesMap, selectGames, unselectGames, isBatchMode } = useGameBatchEditorStore()
@@ -191,7 +193,7 @@ export function CollectionPoster({
 
   return (
     <CollectionCM collectionId={collectionId}>
-      <div className={cn('group relative rounded-lg')} ref={ref_}>
+      <div className={cn('group relative rounded-lg hover:z-30 focus-within:z-30')} ref={ref_}>
         {dragging ? (
           <Preview
             collectionLength={length}
@@ -201,9 +203,11 @@ export function CollectionPoster({
         ) : (
           <div className="flex flex-col items-center justify-center gap-[8px] cursor-pointer group">
             <div
+              {...tilt.bind}
+              style={tilt.style}
               className={cn(
                 'rounded-lg shadow-md',
-                'transition-all duration-300 ease-in-out',
+                'transition-shadow duration-200 ease-out group-hover:shadow-xl',
                 isSelected || isPartiallySelected
                   ? 'ring-2'
                   : 'ring-0 ring-border group-hover:ring-2',
@@ -216,7 +220,7 @@ export function CollectionPoster({
               )}
               onClick={handleCollectionClick}
             >
-              <HoverCardAnimation>
+              <div className="relative overflow-hidden rounded-lg">
                 <GameImage
                   gameId={gameId}
                   type="cover"
@@ -224,18 +228,18 @@ export function CollectionPoster({
                   initialMask={true}
                   blurType="poster"
                   alt={gameId}
-                  className={cn('w-[155px] h-[155px] cursor-pointer object-cover', className)}
+                  className={cn('w-[148px] h-[222px] cursor-pointer object-cover', className)}
                   draggable="false"
                   fallback={
                     <div
                       className={cn(
-                        'w-[155px] h-[155px] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
+                        'w-[148px] h-[222px] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
                         className
                       )}
                     ></div>
                   }
                 />
-              </HoverCardAnimation>
+              </div>
               {/* Hover Layer */}
               <div
                 className={cn(

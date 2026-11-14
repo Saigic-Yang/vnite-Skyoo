@@ -2,13 +2,16 @@
   "title": "Skyoo",
   "navigation": {
     "library": "Game Library",
-    "records": "Records",
+    "records": "Timeline",
     "scanner": "Scanner",
-    "databaseInspector": "Database Inspector",
+    "databaseInspector": "Data Dashboard",
+    "scoreReport": "Score Report",
     "transformer": "Transformer",
     "plugin": "Plugins"
   },
   "actions": {
+    "customizeSidebar": "Customize sidebar",
+    "showLabels": "Show labels",
     "viewLogs": "View Logs",
     "libraryFilters": "Library Filters",
     "nsfwLevel": {

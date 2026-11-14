@@ -328,7 +328,10 @@ export function RecordOverview(): React.JSX.Element {
                   gameId={gameId}
                   rank={index + 1}
                   extraInfo={
-                    gameMetaIndex[gameId].score?.toFixed(1).toString() || t('overview.misc.noScore')
+                    (gameMetaIndex[gameId].score === undefined || gameMetaIndex[gameId].score === -1
+                      ? ''
+                      : Math.trunc(gameMetaIndex[gameId].score!).toString()) ||
+                    t('overview.misc.noScore')
                   }
                 />
               ))}
@@ -379,7 +382,10 @@ export function RecordOverview(): React.JSX.Element {
                   gameId={gameId}
                   rank={index + 1}
                   extraInfo={
-                    gameMetaIndex[gameId].score?.toFixed(1).toString() || t('overview.misc.noScore')
+                    (gameMetaIndex[gameId].score === undefined || gameMetaIndex[gameId].score === -1
+                      ? ''
+                      : Math.trunc(gameMetaIndex[gameId].score!).toString()) ||
+                    t('overview.misc.noScore')
                   }
                 />
               ))}

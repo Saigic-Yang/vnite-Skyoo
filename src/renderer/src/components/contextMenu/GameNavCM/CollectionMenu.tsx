@@ -38,9 +38,13 @@ export function CollectionMenu({
       <ContextMenuSub>
         <ContextMenuSubTrigger>{t('detail.collection.addTo')}</ContextMenuSubTrigger>
         <ContextMenuPortal>
-          <ContextMenuSubContent className="max-w-[300px]">
+          <ContextMenuSubContent
+            className="max-w-[300px]"
+            style={{ maxHeight: 'none', overflow: 'visible' }}
+          >
             {/* Display collections that do not contain the game */}
-            <div className={cn('max-h-[224px] overflow-auto scrollbar-base-thin')}>
+            {/* 一次性全部展开，不再限制高度/内部滚动 */}
+            <div className={cn('max-h-none overflow-visible')}>
               {sortedCollections
                 .filter(([key]) => !gameInCollectionsId.includes(key))
                 .map(([key, value]) => (
@@ -68,7 +72,10 @@ export function CollectionMenu({
           <ContextMenuSubTrigger>{t('detail.collection.removeFrom')}</ContextMenuSubTrigger>
           <ContextMenuPortal>
             {/* Only show if the game is in at least one collection */}
-            <ContextMenuSubContent className="max-w-[300px]">
+            <ContextMenuSubContent
+            className="max-w-[300px]"
+            style={{ maxHeight: 'none', overflow: 'visible' }}
+          >
               {sortedCollections
                 .filter(([key]) => gameInCollectionsId.includes(key))
                 .map(([key, value]) => (

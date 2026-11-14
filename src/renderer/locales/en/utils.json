@@ -72,6 +72,7 @@
       "partial": "Partially Completed",
       "finished": "Completed",
       "multiple": "Multiple Runs",
+      "deleted": "Deleted",
       "shelved": "Shelved",
       "unknown": "Unknown Status"
     }

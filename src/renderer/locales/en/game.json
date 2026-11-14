@@ -2,6 +2,7 @@
   "librarybar": {
     "home": "Home",
     "collections": "Collections",
+    "dragToReorder": "Drag to reorder buttons",
     "search": {
       "placeholder": "Search",
       "tooltip": "Supports searching by game name, developer, release date and other metadata"
@@ -84,8 +85,16 @@
     "loadingGames": "Loading games...",
     "sections": {
       "recentGames": "Recent Games",
+      "recentlyAdded": "Recently Added",
       "collections": "My Collections",
       "allGames": "All Games"
+    },
+    "recentlyAdded": {
+      "empty": "No recently added games"
+    },
+    "collections": {
+      "expandAll": "Show all",
+      "collapse": "Collapse"
     },
     "sorting": {
       "title": "Sort by:",
@@ -263,6 +272,11 @@
         "placeholder": "Enter game title to search"
       },
       "relatedSites": {
+        "steamStore": "Steam Store",
+        "steamdb": "SteamDB",
+        "opencritic": "OpenCritic",
+        "metacritic": "Metacritic",
+        "howlongtobeat": "HowLongToBeat",
         "empty": "No related sites",
         "addLink": "Add Link",
         "nameLabel": "Website Name",
@@ -325,6 +339,27 @@
           "searchError": "Search error: {{error}}",
           "selectRequired": "Please select at least one additional information item"
         }
+      },
+      "ratings": {
+        "myScore": "My Score",
+        "myScoreHint": "Click to edit your score",
+        "steam": "Steam Overall",
+        "steamHint": "{{summary}} ({{total}} reviews)",
+        "chinese": "Steam Chinese",
+        "scoreTitle": "Pick a score",
+        "rowRecent": "Recent",
+        "rowChinese": "Simplified Chinese",
+        "rowAll": "All reviews",
+        "colScope": "Scope",
+        "colRating": "Rating",
+        "colPercent": "Positive",
+        "colCount": "Reviews",
+        "openStore": "Click to open the Steam store page",
+        "metacritic": "Metacritic",
+        "metacriticHint": "Critic average from the Steam store API",
+        "opencritic": "OpenCritic",
+        "opencriticHint": "Based on {{count}} critic reviews",
+        "refresh": "Refresh rating data"
       },
       "record": {
         "title": "Play Data",

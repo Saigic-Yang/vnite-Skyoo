@@ -9,7 +9,9 @@ import {
   getGameBackgrounds,
   getGameBackgroundsByName,
   getGameCover,
-  getGameCoverByName
+  getGameCoverByName,
+  getGameLogos,
+  getGameLogosByName
 } from './common'
 
 export const igdbProvider: ScraperProvider = {
@@ -59,5 +61,13 @@ export const igdbProvider: ScraperProvider = {
       coverUrl = await getGameCoverByName(identifier.value)
     }
     return coverUrl ? [coverUrl] : []
+  },
+
+  async getGameLogos(identifier: ScraperIdentifier): Promise<string[]> {
+    if (!isIGDBConfigured()) return []
+    if (identifier.type === 'id') {
+      return await getGameLogos(identifier.value)
+    }
+    return await getGameLogosByName(identifier.value)
   }
 }

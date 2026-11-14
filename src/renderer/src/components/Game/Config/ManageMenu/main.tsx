@@ -4,6 +4,8 @@ import { toast } from 'sonner'
 import { eventBus } from '~/app/events'
 import { ipcManager } from '~/app/ipc'
 import { useLibrarybarStore } from '~/components/Librarybar/store'
+import { usePathExistsStore } from '~/stores/pathExistsStore'
+import { cn } from '~/utils'
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -29,6 +31,8 @@ export function ManageMenu({
   const { t } = useTranslation('game')
   const [gamePath] = useGameLocalState(gameId, 'path.gamePath')
   const [rootPath] = useGameLocalState(gameId, 'utils.rootPath')
+  const gamePathState = usePathExistsStore((state) => state.gamePaths[gameId])
+  const rootPathMissing = Boolean(gamePathState?.hasPath) && gamePathState?.exists === false
   const [gameName] = useGameState(gameId, 'metadata.name')
   const [nsfw, setNsfw] = useGameState(gameId, 'apperance.nsfw')
   const [playStatus, setPlayStatus] = useGameState(gameId, 'record.playStatus')
@@ -146,12 +150,18 @@ export function ManageMenu({
               {/* Browse Local Files */}
               {/* Only work if rootPath is set */}
               <DropdownMenuItem
-                onClick={() => {
+                className={cn(rootPathMissing && 'text-destructive')}
+                onClick={async () => {
                   if (!rootPath) {
                     toast.warning(t('detail.manage.notifications.gamePathNotSet'))
-                  } else {
-                    ipcManager.invoke('system:open-path-in-explorer', rootPath)
+                    return
                   }
+                  const exists = await usePathExistsStore.getState().recheck(gameId)
+                  if (!exists) {
+                    toast.error('本地文件已删除')
+                    return
+                  }
+                  ipcManager.invoke('system:open-path-in-explorer', rootPath)
                 }}
               >
                 {t('detail.manage.browseLocalFiles')}

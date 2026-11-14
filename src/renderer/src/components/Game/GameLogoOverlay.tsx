@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { NSFWBlurLevel } from '@appTypes/models'
 import { Button } from '@ui/button'
 import { GameImage } from '@ui/game-image'
+import { useTilt } from '~/components/animations/useTilt'
 import { useConfigState, useGameState } from '~/hooks'
 import { useGameDetailStore } from './store'
 
@@ -12,7 +13,10 @@ type LogoPosition = {
   y: number
 }
 
-const INITIAL_POSITION: LogoPosition = { x: 1.5, y: 35 }
+// 默认放在背景图左上角，避免被「开始游戏 / 评分」等按钮压住
+const INITIAL_POSITION: LogoPosition = { x: 0.6, y: 1 }
+// 旧版本的默认位置，用于自动迁移（老游戏不用手动重置也能挪到新位置）
+const LEGACY_INITIAL_POSITION: LogoPosition = { x: 1.5, y: 35 }
 const INITIAL_POSITION_IN_COMPACT: LogoPosition = { x: 70, y: 5 }
 const INITIAL_SIZE = 100
 const LOGO_SCROLL_FACTOR = 1.3
@@ -25,6 +29,14 @@ function getRenderedPosition(
   position: LogoPosition,
   headerLayout: 'default' | 'compact'
 ): LogoPosition {
+  // 老数据自动迁移到新的左上角默认位置（含上一版默认值 1.5 / 7）
+  if (
+    (position.x === LEGACY_INITIAL_POSITION.x && position.y === LEGACY_INITIAL_POSITION.y) ||
+    (position.x === 1.5 && position.y === 7)
+  ) {
+    return INITIAL_POSITION
+  }
+
   if (headerLayout === 'compact' && isInitialPosition(position)) {
     return INITIAL_POSITION_IN_COMPACT
   }
@@ -40,6 +52,8 @@ export const GameLogoOverlay = React.memo(function GameLogoOverlay({
   scrollAreaRef: React.RefObject<HTMLDivElement | null>
 }): React.JSX.Element {
   const { t } = useTranslation('game')
+  // 徽章悬停时的 3D 交互（与背景 3D 互斥，见 Light.tsx 中的 game-logo-hover 监听）
+  const logoHover = useTilt(30, 1.15)
   const logoRef = useRef<HTMLDivElement>(null)
   const draggingRef = useRef(false)
   const dragOffsetRef = useRef({ x: 0, y: 0 })
@@ -259,21 +273,31 @@ export const GameLogoOverlay = React.memo(function GameLogoOverlay({
           ref={logoRef}
           onPointerDown={handlePointerDown}
           onWheel={handleWheel}
+          onMouseEnter={() => {
+            window.dispatchEvent(new CustomEvent('game-logo-hover', { detail: true }))
+          }}
+          onMouseLeave={() => {
+            window.dispatchEvent(new CustomEvent('game-logo-hover', { detail: false }))
+          }}
           style={{
             cursor: isEditingLogo ? (dragging ? 'grabbing' : 'grab') : 'default',
             transformOrigin: 'center center',
-            zIndex: isEditingLogo ? 30 : 10,
+            // 必须高于内容层（z-20），否则鼠标事件会被内容层截获，悬停 3D 不触发
+            zIndex: isEditingLogo ? 40 : 25,
             touchAction: 'none'
           }}
           className="absolute will-change-transform"
         >
-          <GameImage
-            gameId={gameId}
-            key={`${gameId}-logo`}
-            type="logo"
-            className="w-auto max-h-[15vh] object-contain"
-            fallback={<div />}
-          />
+          {/* 徽章单独一层 3D 交互，不影响外层的位置/缩放变换 */}
+          <div {...logoHover.bind} style={logoHover.style}>
+            <GameImage
+              gameId={gameId}
+              key={`${gameId}-logo`}
+              type="logo"
+              className="w-auto max-h-[7.5vh] object-contain"
+              fallback={<div />}
+            />
+          </div>
         </div>
       )}
     </>

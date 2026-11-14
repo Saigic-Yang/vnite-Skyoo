@@ -177,7 +177,39 @@
       "compact": "Compact",
       "detailed": "Detailed"
     },
+    "verdicts": {
+      "score1": "Overwhelmingly Negative",
+      "score23": "Mostly Negative",
+      "score45": "Mixed",
+      "score67": "Mostly Positive",
+      "score89": "Very Positive",
+      "score10": "Overwhelmingly Positive"
+    },
     "categories": {
+      "score1": {
+        "title": "1 point",
+        "description": "Very poor experience, not recommended"
+      },
+      "score23": {
+        "title": "2-3 points",
+        "description": "Many problems, try with caution"
+      },
+      "score45": {
+        "title": "4-5 points",
+        "description": "Average, with obvious flaws"
+      },
+      "score67": {
+        "title": "6-7 points",
+        "description": "Decent quality, worth a try"
+      },
+      "score89": {
+        "title": "8-9 points",
+        "description": "Very good, recommended"
+      },
+      "score10": {
+        "title": "10 points",
+        "description": "Outstanding experience, highly recommended"
+      },
       "excellent": {
         "title": "Outstanding (9-10)",
         "description": "These games offer exceptional experiences, highly recommended"

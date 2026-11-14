@@ -12,6 +12,7 @@ import {
   tryUpscaleGameImage
 } from '~/features/game'
 import { launcherPreset } from '~/features/launcher'
+import { refreshGameRatings } from '~/features/ratings'
 import { scraperManager, type GameMetadataAggregationResult } from '~/features/scraper'
 import { ScraperError, logScraperError } from '~/features/scraper/errors'
 import { cacheDescriptionImages } from '~/features/scraper/services/descriptionImageCache'
@@ -377,6 +378,11 @@ export async function addGameToDB({
       },
       { source: 'adder' }
     )
+
+    // Skyoo: 入库后异步抓取评分（Steam 好评率 / Metacritic / OpenCritic），失败不影响入库
+    void refreshGameRatings(dbId).catch((err) => {
+      log.warn(`[Adder] Failed to fetch ratings for ${dbId}: ${err.message}`)
+    })
 
     return dbId
   } catch (error) {

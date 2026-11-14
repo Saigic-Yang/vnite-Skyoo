@@ -22,6 +22,8 @@ export function CollectionPage(): React.JSX.Element {
   const selectGames = useGameBatchEditorStore((state) => state.selectGames)
 
   const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
+  const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
 
   // Keyboard shortcut handling
   useEffect(() => {
@@ -91,7 +93,9 @@ export function CollectionPage(): React.JSX.Element {
   return (
     <div
       className={cn('flex flex-col gap-3 h-full bg-transparent select-none')}
-      style={{ width: `calc(100vw - ${libraryBarWidth + 60 - (libraryBarWidth === 0 ? 1 : 0)}px)` }}
+      style={{
+        width: `calc(100vw - ${libraryBarWidth + sidebarWidth + 4 - (libraryBarWidth === 0 ? 1 : 0)}px)`
+      }}
     >
       <ScrollArea className={cn('w-full h-full pb-2')}>
         <div className={cn('w-full flex flex-col gap-1 pt-[18px]')}>

@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { Game } from '~/components/Game'
 import { Showcase } from '~/components/Showcase'
+import { AllGamesPage } from '~/components/Showcase/AllGamesPage'
 import { CollectionGames } from '~/components/Showcase/CollectionGames'
 import { CollectionPage } from '~/components/Showcase/CollectionPage'
 import { RouteContentErrorFallback } from '~/components/errors/RouteContentErrorFallback'
@@ -17,6 +18,7 @@ import { GameScannerManager } from '~/pages/GameScannerManager'
 import { Library } from '~/pages/Library'
 import { Plugin } from '~/pages/Plugin/main'
 import { Record } from '~/pages/Record'
+import { ScoreReportPage } from '~/pages/ScoreReportPage'
 import { TransformerManager } from '~/pages/TransformerManager'
 import { Icon } from '~/pages/arts/Icon'
 import { Logo } from '~/pages/arts/Logo'
@@ -112,6 +114,13 @@ const libraryCollectionsRoute = createRoute({
   errorComponent: RouteContentErrorFallback
 })
 
+const libraryAllRoute = createRoute({
+  getParentRoute: () => libraryRoute,
+  path: '/all',
+  component: AllGamesPage,
+  errorComponent: RouteContentErrorFallback
+})
+
 const libraryGameRoute = createRoute({
   getParentRoute: () => libraryRoute,
   path: '/games/$gameId/$groupId',
@@ -157,6 +166,13 @@ const recordRoute = createRoute({
 
     return { tab, date: defaultDateAndYear.date, year }
   }
+})
+
+const scoreReportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/score-report',
+  component: ScoreReportPage,
+  errorComponent: RouteContentErrorFallback
 })
 
 const configRoute = createRoute({
@@ -224,10 +240,12 @@ const routeTree = rootRoute.addChildren([
     libraryIndexRoute,
     libraryHomeRoute,
     libraryCollectionsRoute,
+    libraryAllRoute,
     libraryGameRoute,
     libraryCollectionGamesRoute
   ]),
   recordRoute,
+  scoreReportRoute,
   configRoute,
   scannerRoute,
   databaseInspectorRoute,

@@ -78,13 +78,28 @@ export class PluginRegistryManager {
   }
 
   private async fetchJson(url: string, options?: RequestInit): Promise<any> {
-    const response = await net.fetch(url, options)
+    // Skyoo fork: GitHub API 在部分网络下会一直挂起（无超时），导致插件页永远转圈。
+    // 这里加 12 秒超时，超时后抛出可读错误，由界面提示用户配置代理。
+    try {
+      const response = await net.fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(12_000)
+      })
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      const message = (error as Error)?.message || ''
+      if (message.includes('timeout') || message.includes('aborted')) {
+        throw new Error(
+          '连接 GitHub API 超时（api.github.com 在当前网络不可达），请在设置中开启代理后重试'
+        )
+      }
+      throw error
     }
-
-    return response.json()
   }
 
   public async searchPlugins(options: PluginSearchOptions): Promise<PluginSearchResult> {
