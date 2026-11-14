@@ -92,6 +92,14 @@ export function About(): React.JSX.Element {
             />
           </ConfigItemPure>
 
+          {/* 修改声明（GPL-3.0 第 5a 条：需显著说明本程序已被修改） */}
+          <ConfigItemPure title="本版本说明">
+            <div className="text-sm text-muted-foreground select-text">
+              本程序基于 Vnite（GPL-3.0）修改，修改日期 2026-11-14；
+              原项目版权归其作者与贡献者所有。
+            </div>
+          </ConfigItemPure>
+
           <Separator />
 
           {/* Feedback Links */}
