@@ -12,13 +12,14 @@ import {
 } from '~/components/Game/GameSortControl'
 import { useGameBatchEditorStore } from '~/components/GameBatchEditor/store'
 import { useConfigState } from '~/hooks'
+
 import { useGameCollectionState } from '~/hooks/useGameCollectionState'
 import { useGameCollectionStore } from '~/stores'
 import { sortGames, useVisibleGameIds } from '~/stores/game'
 import { cn } from '~/utils'
 import { GamePoster } from './posters/GamePoster'
 import { PlaceHolder } from './posters/PlaceHolder'
-import { ScrollToTopButton } from './ScrollToTopButton'
+import { ScrollNavButtons } from './ScrollNavButtons'
 
 export type DragContextType = {
   isDraggingGlobal: boolean
@@ -40,10 +41,12 @@ export const useDragContext = (): DragContextType => {
 
 export function CollectionGamesComponent({
   collectionId,
-  scrollPosition
+  scrollPosition,
+  onOpenGame
 }: {
   collectionId: string
   scrollPosition: { x: number; y: number }
+  onOpenGame?: (gameId: string) => void
 }): React.JSX.Element {
   const [by, setBy] = useGameCollectionState(collectionId, 'sortBy')
   const [order, setOrder] = useGameCollectionState(collectionId, 'sortOrder')
@@ -60,6 +63,7 @@ export function CollectionGamesComponent({
   const [columns, setColumns] = useState<number>(0)
   const gridContainerRef = useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+
 
   const selectGames = useGameBatchEditorStore((state) => state.selectGames)
 
@@ -169,7 +173,10 @@ export function CollectionGamesComponent({
           )}
           <SeparatorDashed className="border-border" />
         </div>
-        <ScrollArea ref={scrollAreaRef} className={cn('w-full flex-1 min-h-0 pb-2')}>
+        <ScrollArea
+          ref={scrollAreaRef}
+          className={cn('w-full flex-1 min-h-0 pb-2 cursor-grab active:cursor-grabbing')}
+        >
           <div className={cn('w-full flex flex-col gap-1')}>
             {/* Game List Container */}
             <div
@@ -196,6 +203,7 @@ export function CollectionGamesComponent({
                   >
                     <GamePoster
                       gameId={gameId}
+                      onOpenDetail={onOpenGame}
                       groupId={`collection:${collectionId}`}
                       dragScenario={
                         by === 'custom' && nsfwFilterMode === NSFWFilterMode.All
@@ -215,7 +223,7 @@ export function CollectionGamesComponent({
             </div>
           </div>
         </ScrollArea>
-        <ScrollToTopButton scrollAreaRef={scrollAreaRef} />
+        <ScrollNavButtons anchorRef={scrollAreaRef} />
       </div>
     </DragContext.Provider>
   )

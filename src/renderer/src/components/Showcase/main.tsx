@@ -10,8 +10,9 @@ import { filterGames, searchGames, useGameRegistry, useVisibleGameIds } from '~/
 import { cn } from '~/utils'
 import { useFilterStore } from '../Librarybar/Filter/store'
 import { useLibrarybarStore } from '../Librarybar/store'
-import { Collections } from './Collections'
 import { RecentlyAdded } from './RecentlyAdded'
+import { RecentlyPlayed } from './RecentlyPlayed'
+import { Uncollected } from './Uncollected'
 import { FilterSearchGames } from './FilterSearchGames'
 import { RecentGames } from './RecentGames'
 import { ScrollToTopButton } from './ScrollToTopButton'
@@ -82,14 +83,14 @@ export function Showcase(): React.JSX.Element {
   let MainContent: React.JSX.Element
   if (!isEqual(filter, {})) {
     MainContent = <FilterSearchGames mode={'filter'} />
-  } else if (query && query.trim() !== '') {
-    MainContent = <FilterSearchGames mode={'search'} />
   } else {
+    // 主页搜索只走顶栏下拉，不再在卡片网格里展示搜索结果
     MainContent = (
       <>
         <RecentGames />
+        <RecentlyPlayed />
+        <Uncollected />
         <RecentlyAdded />
-        <Collections />
         {/* 「所有游戏」已拆成独立 tab（/library/all） */}
       </>
     )

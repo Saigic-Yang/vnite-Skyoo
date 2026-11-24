@@ -1,6 +1,7 @@
 import { useRouter, useSearch } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { HelpTooltip } from '~/components/ui/tooltip'
@@ -59,13 +60,22 @@ export function Record({ className }: { className?: string }): React.JSX.Element
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="mb-4">
-              <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
-              <TabsTrigger value="yearly">{t('tabs.yearly')}</TabsTrigger>
-              <TabsTrigger value="monthly">{t('tabs.monthly')}</TabsTrigger>
-              <TabsTrigger value="weekly">{t('tabs.weekly')}</TabsTrigger>
-              <TabsTrigger value="report">{t('tabs.report')}</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between mb-4">
+              <TabsList>
+                <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
+                <TabsTrigger value="yearly">{t('tabs.yearly')}</TabsTrigger>
+                <TabsTrigger value="monthly">{t('tabs.monthly')}</TabsTrigger>
+                <TabsTrigger value="weekly">{t('tabs.weekly')}</TabsTrigger>
+              </TabsList>
+              {/* 导出报告：从 tab 改成右侧独立按钮 */}
+              <Button
+                variant={search.tab === 'report' ? 'default' : 'thirdary'}
+                className={cn('shrink-0')}
+                onClick={() => handleTabChange('report')}
+              >
+                {t('tabs.report')}
+              </Button>
+            </div>
 
             <TabsContent value="overview">
               <RecordOverview />

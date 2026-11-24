@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { useConfigState } from '~/hooks'
-import { useLibraryStore } from '~/pages/Library/store'
+import { useEffectiveLibraryBarWidth } from '~/hooks/useShowLibrarybar'
 import { getRecentGameIds, useVisibleGameIds } from '~/stores/game'
 import { cn } from '~/utils'
 import { HorizontalDragBar } from './HorizontalDragBar'
@@ -16,7 +16,7 @@ export function RecentGames(): React.JSX.Element {
   const games = getRecentGameIds(15, visibleGameIds)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showRecentGamesInGameList] = useConfigState('game.gameList.showRecentGames')
-  const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const libraryBarWidth = useEffectiveLibraryBarWidth()
   const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
   const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
 

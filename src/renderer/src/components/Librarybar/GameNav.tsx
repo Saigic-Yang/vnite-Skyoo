@@ -11,6 +11,7 @@ import { ContextMenu, ContextMenuTrigger } from '~/components/ui/context-menu'
 import { GameImage } from '~/components/ui/game-image'
 import { useConfigState, useGameLocalState, useGameState } from '~/hooks'
 import { useLibraryStore } from '~/pages/Library/store'
+import { useInlineDetailStore } from '~/stores/inlineDetailStore'
 import { useGamePathStore } from '~/stores/game/gamePathStore'
 import { cn, formatDurationCompact, formatStorageSize, startGame } from '~/utils'
 import { GameNavCM } from '../contextMenu/GameNavCM'
@@ -92,7 +93,20 @@ export function GameNav({
     startGame(gameId, navigate, groupId)
   }
 
+  /**
+ * 「所有游戏」页：在捕获阶段截断点击，阻止 <Link> 自己执行路由跳转，
+ * 改为在右侧网格区内联打开详情（左侧列表保持不动）。
+ */
+const handleGameClickCapture = (event: React.MouseEvent): void => {
+    if (!location.pathname.startsWith('/library/all')) return
+    event.preventDefault()
+    event.stopPropagation()
+    useInlineDetailStore.getState().setGameId(gameId)
+  }
+
   const handleGameClick = (event: React.MouseEvent): void => {
+    if (location.pathname.startsWith('/library/all')) return
+
     const store = useGameBatchEditorStore.getState()
     const { addGameId, removeGameId, clearGameIds, lastSelectedId, setLastSelectedId, gameIds } =
       store
@@ -359,6 +373,7 @@ export function GameNav({
       <ContextMenu>
         <ContextMenuTrigger>
           <div
+            onClickCapture={handleGameClickCapture}
             onClick={handleGameClick}
             onDoubleClick={handleDoubleClick}
             data-game-id={gameId}

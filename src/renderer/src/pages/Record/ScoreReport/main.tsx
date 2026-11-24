@@ -1,9 +1,11 @@
+import { Button } from '@ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/tabs'
 import { Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScoreEditorDialog } from '~/components/Game/Config/ManageMenu/ScoreEditorDialog'
 import { useGameRegistry, useNSFWFilteredGameIds } from '~/stores/game'
+import { cn } from '~/utils'
 import { useScoreReportStore } from '../store'
 import { createScoreReportCategories } from './data'
 import { ScoreReportCompactView } from './ScoreReportCompactView'
@@ -20,10 +22,13 @@ export function ScoreReport(): React.JSX.Element {
   const { scoreEditorState, closeScoreEditor, bumpVersion, scoreReportVersion } =
     useScoreReportStore()
 
-  const categories = useMemo<ScoreCategoryData[]>(
-    () => createScoreReportCategories(t, filteredGameIds, gameMetaIndex),
-    [t, scoreReportVersion, filteredGameIds, gameMetaIndex]
-  )
+  // 排序：默认高分在前，可切换为低分在前
+  const [sortDesc, setSortDesc] = useState(true)
+
+  const categories = useMemo<ScoreCategoryData[]>(() => {
+    const base = createScoreReportCategories(t, filteredGameIds, gameMetaIndex)
+    return [...base].sort((a, b) => (sortDesc ? b.minScore - a.minScore : a.minScore - b.minScore))
+  }, [t, scoreReportVersion, filteredGameIds, gameMetaIndex, sortDesc])
 
   return (
     <div>
@@ -41,10 +46,25 @@ export function ScoreReport(): React.JSX.Element {
             <p className="text-muted-foreground">{t('score.description')}</p>
           </div>
 
-          <TabsList className="shrink-0 self-start">
-            <TabsTrigger value="compact">{t('score.views.compact')}</TabsTrigger>
-            <TabsTrigger value="detailed">{t('score.views.detailed')}</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-2 shrink-0 self-start">
+            <Button
+              variant="thirdary"
+              size="icon"
+              title={sortDesc ? '当前：高分在前（点击切换为低分在前）' : '当前：低分在前（点击切换为高分在前）'}
+              onClick={() => setSortDesc(!sortDesc)}
+            >
+              <span
+                className={cn(
+                  'w-5 h-5',
+                  sortDesc ? 'icon-[mdi--sort-descending]' : 'icon-[mdi--sort-ascending]'
+                )}
+              />
+            </Button>
+            <TabsList className="">
+              <TabsTrigger value="compact">{t('score.views.compact')}</TabsTrigger>
+              <TabsTrigger value="detailed">{t('score.views.detailed')}</TabsTrigger>
+            </TabsList>
+          </div>
         </div>
 
         <TabsContent value="compact">

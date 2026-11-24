@@ -5,7 +5,7 @@ import os from 'os'
 import path from 'path'
 import { GameDBManager } from '~/core/database'
 import { eventBus } from '~/core/events'
-import { getAppTempPath } from '~/features/system'
+import { getAppTempPath, getSaveDataPath } from '~/features/system'
 import { unzipFile, walkFs, zipFolder } from '~/utils'
 
 type InFlightGameSaveOperation =
@@ -78,7 +78,38 @@ export async function backupGameSave(gameId: string): Promise<string> {
       const zipPath = await zipFolder(tempFilesPath, tempZipPath, saveId)
       await GameDBManager.setGameSave(gameId, saveId, zipPath)
 
-      saveList[saveId] = { _id: saveId, date: new Date().toISOString(), note: '', locked: false }
+      // 同时把备份落盘一份：这样「打开本地文件」能直接定位到真实文件，
+      // 不需要每次从数据库导出临时副本。数据库附件保留，兼容老数据的还原逻辑。
+      let diskFilePath: string | undefined
+      let backupSizeMB: number | undefined
+      try {
+        const gameName = await GameDBManager.getGameValue(gameId, 'metadata.name').catch(() => '')
+        const safeName = String(gameName || gameId).replace(/[\\/:*?"<>|]/g, '_').trim()
+        const backupDir = getSaveDataPath(safeName)
+        await fse.ensureDir(backupDir)
+        // 文件名：游戏名 + 备份时间，方便直接看懂
+        const now = new Date()
+        const pad = (n: number): string => String(n).padStart(2, '0')
+        const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+          now.getDate()
+        )}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+        diskFilePath = path.join(backupDir, `${safeName}-${stamp}.zip`)
+        await fse.copy(zipPath, diskFilePath, { overwrite: true })
+        const stat = await fse.stat(diskFilePath)
+        backupSizeMB = +(stat.size / 1048576).toFixed(2)
+      } catch (error) {
+        log.warn(`[Game] Failed to persist save backup on disk: ${(error as Error).message}`)
+        diskFilePath = undefined
+      }
+
+      saveList[saveId] = {
+        _id: saveId,
+        date: new Date().toISOString(),
+        note: '',
+        locked: false,
+        filePath: diskFilePath,
+        sizeMB: backupSizeMB
+      }
       await GameDBManager.setGameValue(gameId, 'save.saveList', saveList)
 
       await fse.remove(tempFilesPath)
@@ -153,7 +184,13 @@ export async function restoreGameSave(
       }
 
       const tempFilesPath = getAppTempPath(`save-files-${Date.now()}/`)
-      const tempZipPath = await GameDBManager.getGameSave(gameId, saveId, 'file')
+      // 优先从 SkyooData\save data 下的备份还原；老数据没有落盘路径时才回退到数据库附件
+      const saveListForPath = await GameDBManager.getGameValue(gameId, 'save.saveList')
+      const diskFile = saveListForPath?.[saveId]?.filePath
+      const tempZipPath =
+        diskFile && (await fse.pathExists(diskFile))
+          ? diskFile
+          : await GameDBManager.getGameSave(gameId, saveId, 'file')
       await fse.ensureDir(tempFilesPath)
 
       await unzipFile(tempZipPath, tempFilesPath)
@@ -203,8 +240,10 @@ export async function restoreGameSave(
 export async function deleteGameSave(gameId: string, saveId: string): Promise<void> {
   try {
     const saveList = await GameDBManager.getGameValue(gameId, 'save.saveList')
+    const diskFile = saveList[saveId]?.filePath
     delete saveList[saveId]
     await GameDBManager.setGameValue(gameId, 'save.saveList', saveList)
+    if (diskFile) await fse.remove(diskFile).catch(() => undefined)
     await GameDBManager.removeGameSave(gameId, saveId)
 
     // Emit event after deleting the save

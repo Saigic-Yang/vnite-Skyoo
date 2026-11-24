@@ -63,13 +63,22 @@ export function CollectionPoster({
   className,
   parentGap = 24,
   position = 'center',
-  dragScenario
+  dragScenario,
+  square = false,
+  onOpen,
+  active = false
 }: {
   collectionId: string
   className?: string
   parentGap?: number // Gap(px) between posters
   position?: 'right' | 'left' | 'center' // poster position in the container
   dragScenario?: string
+  /** 正方形卡片（收藏页左侧列表） */
+  square?: boolean
+  /** 提供后点击不再跳转路由，直接回调 */
+  onOpen?: (collectionId: string) => void
+  /** 激活态：描边画在卡片图片本身，而不是外层容器 */
+  active?: boolean
 }): React.JSX.Element {
   const router = useRouter()
   const collections = useGameCollectionStore((state) => state.documents)
@@ -126,6 +135,8 @@ export function CollectionPoster({
     } else if (isBatchMode && !e.ctrlKey && !e.metaKey) {
       // In batch mode, select the collection on click
       handleSelect(e)
+    } else if (onOpen) {
+      onOpen(collectionId)
     } else {
       // Default behavior: navigate to collection page
       router.navigate({ to: `/library/collections/${collectionId}` })
@@ -193,7 +204,13 @@ export function CollectionPoster({
 
   return (
     <CollectionCM collectionId={collectionId}>
-      <div className={cn('group relative rounded-lg hover:z-30 focus-within:z-30')} ref={ref_}>
+      <div
+        className={cn(
+          'group relative rounded-lg hover:z-30 focus-within:z-30',
+          active && 'z-20'
+        )}
+        ref={ref_}
+      >
         {dragging ? (
           <Preview
             collectionLength={length}
@@ -208,14 +225,19 @@ export function CollectionPoster({
               className={cn(
                 'rounded-lg shadow-md',
                 'transition-shadow duration-200 ease-out group-hover:shadow-xl',
-                isSelected || isPartiallySelected
-                  ? 'ring-2'
-                  : 'ring-0 ring-border group-hover:ring-2',
-                isSelected
-                  ? 'ring-primary'
-                  : isPartiallySelected
-                    ? 'ring-primary/50'
-                    : 'group-hover:ring-primary',
+                // 激活描边交给图片层，避免落位偏移
+                active
+                  ? 'ring-0'
+                  : isSelected || isPartiallySelected
+                    ? 'ring-2'
+                    : 'ring-0 ring-border group-hover:ring-2',
+                active
+                  ? ''
+                  : isSelected
+                    ? 'ring-primary'
+                    : isPartiallySelected
+                      ? 'ring-primary/50'
+                      : 'group-hover:ring-primary',
                 'relative overflow-hidden group'
               )}
               onClick={handleCollectionClick}
@@ -228,17 +250,31 @@ export function CollectionPoster({
                   initialMask={true}
                   blurType="poster"
                   alt={gameId}
-                  className={cn('w-[148px] h-[222px] cursor-pointer object-cover', className)}
+                  className={cn(
+                    'w-[148px] cursor-pointer object-cover',
+                    square ? 'h-[148px]' : 'h-[222px]',
+                    className
+                  )}
                   draggable="false"
                   fallback={
                     <div
                       className={cn(
-                        'w-[148px] h-[222px] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
+                        'w-[148px] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
+                        square ? 'h-[148px]' : 'h-[222px]',
                         className
                       )}
                     ></div>
                   }
                 />
+                {/* 选中态：用 border + inset 发光（画在元素内部，绝不会被父级 overflow-hidden 裁掉） */}
+                {active && (
+                  <div
+                    className={cn(
+                      'pointer-events-none absolute inset-0 z-20 rounded-lg',
+                      'border-2 border-primary shadow-[inset_0_0_18px_hsl(var(--primary)/0.55)]'
+                    )}
+                  />
+                )}
               </div>
               {/* Hover Layer */}
               <div

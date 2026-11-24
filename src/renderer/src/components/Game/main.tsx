@@ -30,7 +30,14 @@ import { Save } from './Save'
 import { useGameDetailStore, useGameDetailTabStore } from './store'
 import { openLargeGameMediaImage } from './utils'
 
-export function Game({ gameId }: { gameId: string }): React.JSX.Element {
+export function Game({
+  gameId,
+  hideMediaButton = false
+}: {
+  gameId: string
+  /** 内联详情里由外层提供「更换背景图」按钮，隐藏自带的那个，避免两个按钮重叠 */
+  hideMediaButton?: boolean
+}): React.JSX.Element {
   const { t } = useTranslation('game')
   const headerRef = useRef<HTMLDivElement>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -96,6 +103,7 @@ export function Game({ gameId }: { gameId: string }): React.JSX.Element {
       <GameLogoOverlay gameId={gameId} scrollAreaRef={scrollAreaRef} />
 
       {/* 媒体素材编辑快捷入口：背景图右上角 */}
+      {!hideMediaButton && (
       <div className="absolute right-5 top-[10px] z-30">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -111,6 +119,7 @@ export function Game({ gameId }: { gameId: string }): React.JSX.Element {
           <TooltipContent side="left">媒体素材</TooltipContent>
         </Tooltip>
       </div>
+      )}
 
       {/* Scrollable Content Area */}
       <ScrollArea
@@ -157,11 +166,11 @@ export function Game({ gameId }: { gameId: string }): React.JSX.Element {
                       <TabsTrigger className={cn('w-1/4')} value="overview" variant="underline">
                         {t('detail.tabs.overview')}
                       </TabsTrigger>
-                      <TabsTrigger className={cn('w-1/4')} value="record" variant="underline">
-                        {t('detail.tabs.record')}
-                      </TabsTrigger>
                       <TabsTrigger className={cn('w-1/4')} value="save" variant="underline">
                         {t('detail.tabs.save')}
+                      </TabsTrigger>
+                      <TabsTrigger className={cn('w-1/4')} value="record" variant="underline">
+                        {t('detail.tabs.record')}
                       </TabsTrigger>
                       <TabsTrigger className={cn('w-1/4')} value="memory" variant="underline">
                         {t('detail.tabs.memory')}

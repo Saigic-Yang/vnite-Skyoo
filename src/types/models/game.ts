@@ -90,6 +90,10 @@ export interface gameDoc {
         date: string
         note: string
         locked: boolean
+        /** 磁盘上的备份文件（用于「打开本地文件」，老数据可能没有） */
+        filePath?: string
+        /** 该备份的大小（MB），老数据可能没有 */
+        sizeMB?: number
       }
     }
     maxBackups: number
@@ -307,7 +311,7 @@ export const DEFAULT_GAME_VALUES: Readonly<gameDoc> = {
   save: {
     saveList: {},
     maxBackups: 7,
-    autoBackupSave: true,
+    autoBackupSave: false,
     autoRestoreSave: false
   },
   memory: {

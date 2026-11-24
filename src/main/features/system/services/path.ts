@@ -71,12 +71,56 @@ export function getAppTempPath(file?: string): string {
   }
 }
 
+/** 存档备份目录：<数据目录>/save data/<gameId>（即 SkyooData\save data） */
+export function getSaveDataPath(gameId?: string): string {
+  const base = portableStore.isPortableMode
+    ? path.join(getAppRootPath(), 'app')
+    : path.join(app.getPath('userData'), 'app')
+  return path.join(base, 'save data', gameId || '')
+}
+
+/** 持久导出目录（备份/图片导出到这里，不会被临时清理） */
+export function getAppExportPath(file?: string): string {
+  const base = path.join(app.getPath('userData'), 'exports', file || '')
+  return base
+}
+
+/** 清理临时目录里超过 maxAgeDays 天的残留（应用启动时执行一次） */
+export async function cleanupOldTempFiles(maxAgeDays = 7): Promise<number> {
+  const tempPath = getAppTempPath()
+  let removed = 0
+  try {
+    if (!(await fse.pathExists(tempPath))) return 0
+    const entries = await fse.readdir(tempPath)
+    const deadline = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000
+    for (const name of entries) {
+      const full = path.join(tempPath, name)
+      try {
+        const stat = await fse.stat(full)
+        if (stat.mtimeMs < deadline) {
+          await fse.remove(full)
+          removed++
+        }
+      } catch {
+        // 单个条目清理失败不影响其它
+      }
+    }
+    if (removed > 0) log.info(`[System] Cleaned ${removed} stale temp entries`)
+  } catch (error) {
+    log.error('[System] Failed to clean stale temp files:', error)
+  }
+  return removed
+}
+
 export async function setupTempDirectory(): Promise<string> {
   try {
     const tempPath = getAppTempPath()
 
     // Ensure that the temporary directory exists
     await fse.ensureDir(tempPath)
+
+    // 启动时清理 7 天前的残留（应用每次启动都会跑，避免临时目录越积越多）
+    void cleanupOldTempFiles(7)
 
     // Clean up the temporary directory when the app exits
     app.on('quit', async () => {

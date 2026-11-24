@@ -3,7 +3,7 @@ import { SeparatorDashed } from '@ui/separator-dashed'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useConfigState } from '~/hooks'
-import { useLibraryStore } from '~/pages/Library/store'
+import { useEffectiveLibraryBarWidth } from '~/hooks/useShowLibrarybar'
 import { useGameCollectionStore } from '~/stores'
 import { useVisibleGameIds } from '~/stores/game'
 import { cn } from '~/utils'
@@ -17,7 +17,7 @@ export function Collections(): React.JSX.Element {
   const [nsfwFilterMode] = useConfigState('appearances.nsfwFilterMode')
   const collections = useGameCollectionStore((state) => state.documents)
   const visibleGameIds = useVisibleGameIds()
-  const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const libraryBarWidth = useEffectiveLibraryBarWidth()
   const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
   const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
   const visibleGameIdSet = useMemo(() => new Set(visibleGameIds), [visibleGameIds])

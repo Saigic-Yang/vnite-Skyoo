@@ -4,6 +4,7 @@ import { Outlet } from '@tanstack/react-router'
 import { useGameBatchEditorStore } from '~/components/GameBatchEditor/store'
 import { FloatingButtons } from '~/components/GameBatchEditor/FloatingButtons'
 import { useRef, useState, useEffect } from 'react'
+import { useShowLibrarybar } from '~/hooks/useShowLibrarybar'
 import { useLibraryStore } from './store'
 
 export function Library({ className }: { className?: string }): React.JSX.Element {
@@ -13,6 +14,8 @@ export function Library({ className }: { className?: string }): React.JSX.Elemen
   const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
   const setLibraryBarWidth = useLibraryStore((state) => state.setLibraryBarWidth)
   const resetLibraryBarWidth = useLibraryStore((state) => state.resetLibraryBarWidth)
+  // 只在「所有游戏」/详情页显示左侧列表；主页与收藏页隐藏，把空间让给卡片
+  const showSidebar = useShowLibrarybar()
 
   // 本地文件是否存在改为「按需记忆」：点击浏览本地文件时才检查并记录，不再全局遍历
 
@@ -73,32 +76,35 @@ export function Library({ className }: { className?: string }): React.JSX.Elemen
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
     }
-  }, [isDragging, libraryBarWidth, setLibraryBarWidth])
+  }, [isDragging, libraryBarWidth, setLibraryBarWidth, showSidebar])
 
   return (
     <div ref={containerRef} className={cn('flex flex-row w-full h-full relative', className)}>
       {isBatchMode && <FloatingButtons />}
 
-      {/* Left panel */}
-      <div style={{ width: `${libraryBarWidth}px` }} className="h-full">
-        <Librarybar />
-      </div>
+      {/* Left panel（主页 / 收藏页隐藏） */}
+      {showSidebar && (
+        <>
+          <div style={{ width: `${libraryBarWidth}px` }} className="h-full">
+            <Librarybar />
+          </div>
 
-      {/* Custom drag handle */}
-      <div
-        ref={dragHandleRef}
-        onDoubleClick={resetLibraryBarWidth}
-        className={cn('w-1 h-full bg-transparent relative z-10 shrink-0 group cursor-ew-resize')}
-      >
-        {/* Visible drag handle */}
-        <div
-          className={cn(
-            'absolute top-0 left-0 w-[1px] group-hover:w-1 group-hover:bg-primary h-full transition-all duration-100 ease-out',
-            isDragging ? 'bg-primary w-1' : 'bg-border',
-            libraryBarWidth === 0 ? 'hidden' : 'block'
-          )}
-        />
-      </div>
+          {/* Custom drag handle */}
+          <div
+            ref={dragHandleRef}
+            onDoubleClick={resetLibraryBarWidth}
+            className={cn('w-1 h-full bg-transparent relative z-10 shrink-0 group cursor-ew-resize')}
+          >
+            <div
+              className={cn(
+                'absolute top-0 left-0 w-[1px] group-hover:w-1 group-hover:bg-primary h-full transition-all duration-100 ease-out',
+                isDragging ? 'bg-primary w-1' : 'bg-border',
+                libraryBarWidth === 0 ? 'hidden' : 'block'
+              )}
+            />
+          </div>
+        </>
+      )}
 
       {/* Right panel */}
       <div className="flex-1 h-full relative">

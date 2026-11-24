@@ -1,8 +1,10 @@
 import { Badge } from '@ui/badge'
 import { Card } from '@ui/card'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
+import { useDragScroll } from '~/hooks/useDragScroll'
 import { cn } from '~/utils'
 import { GameScoreCard } from './GameScoreCard'
 import { ScoreCategoryHeader } from './ScoreCategoryHeader'
@@ -15,6 +17,8 @@ interface CompactScoreCategoryProps {
 function CompactScoreCategory({ category }: CompactScoreCategoryProps): React.JSX.Element | null {
   const { t } = useTranslation('record')
   const { games, className } = category
+  const listOuterRef = useRef<HTMLDivElement>(null)
+  const dragHandlers = useDragScroll(() => listOuterRef.current, 'x')
 
   if (games.length === 0) {
     return null
@@ -31,12 +35,16 @@ function CompactScoreCategory({ category }: CompactScoreCategoryProps): React.JS
             {t('score.categories.gamesCount', { count: games.length })}
           </Badge>
         </div>
-        <div className="h-[280px] 3xl:h-[325px] p-6 pt-0 pb-4 lg:w-4/5 lg:pt-6">
+        <div
+          className="h-[280px] 3xl:h-[325px] p-6 pt-0 pb-4 lg:w-4/5 lg:pt-6 cursor-grab active:cursor-grabbing"
+          {...dragHandlers}
+        >
           <AutoSizer>
             {({ height, width }) => {
               const itemSize = height <= 250 ? 150 : 180
               return (
                 <FixedSizeList
+                  outerRef={listOuterRef}
                   height={height}
                   itemCount={games.length}
                   itemSize={itemSize}

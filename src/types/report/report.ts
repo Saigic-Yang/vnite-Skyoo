@@ -17,7 +17,8 @@ type JsonReportExportArtifact = {
 export type ReportExportRequest = ReportExportOptions['common'] &
   (
     | ({ reportType: VisualReportType } & VisualReportExportArtifact)
-    | ({ reportType: JsonOnlyReportType } & JsonReportExportArtifact)
+    // 游玩时间报告既支持 JSON，也支持可视化 HTML
+    | ({ reportType: JsonOnlyReportType } & (JsonReportExportArtifact | VisualReportExportArtifact))
   )
 
 export interface ReportExportResponse {

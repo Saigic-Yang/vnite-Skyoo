@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { create } from 'zustand'
 import { useTheme } from '~/components/ThemeProvider'
 import { useConfigState, useGameState } from '~/hooks'
-import { useLibraryStore } from '~/pages/Library/store'
+import { useEffectiveLibraryBarWidth } from '~/hooks/useShowLibrarybar'
 import { useAttachmentStore } from '~/stores'
 import { getRecentGameIds, useGameCollectionStore, useGameRegistry } from '~/stores/game'
 import { cn } from '~/utils'
@@ -40,7 +40,7 @@ export function Light(): React.JSX.Element {
   const detailBackgroundRef = useRef<HTMLDivElement>(null)
   const tiltLayerRef = useRef<HTMLDivElement>(null)
   const parallaxContainerRef = useRef<HTMLDivElement>(null)
-  const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const libraryBarWidth = useEffectiveLibraryBarWidth()
   const { isDark } = useTheme()
   const refreshId = useLightStore((state) => state.refreshId)
 

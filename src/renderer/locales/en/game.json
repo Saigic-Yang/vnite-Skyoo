@@ -85,6 +85,8 @@
     "loadingGames": "Loading games...",
     "sections": {
       "recentGames": "Recent Games",
+      "recentlyPlayed": "Most Played",
+      "uncollected": "Uncollected",
       "recentlyAdded": "Recently Added",
       "collections": "My Collections",
       "allGames": "All Games"

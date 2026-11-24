@@ -1,7 +1,11 @@
 import type { GameMediaType } from '@appTypes/models'
+import { shell } from 'electron'
+import fse from 'fs-extra'
+import { join } from 'node:path'
 import sharp from 'sharp'
 import { GameDBManager } from '~/core/database'
 import { ipcManager } from '~/core/ipc'
+import { getAppExportPath } from '~/features/system'
 import {
   addGameMemory,
   addGameMemoryInlineImage,
@@ -42,6 +46,37 @@ export function setupGameIPC(): void {
     return await backupGameSave(gameId)
   })
 
+  // 重新计算所有历史备份的大小（老数据没有 sizeMB 时自动补上）
+  ipcManager.handle('game:refresh-save-sizes', async (_, gameId: string) => {
+    const saveList = await GameDBManager.getGameValue(gameId, 'save.saveList')
+    const sizes: Record<string, number> = {}
+
+    for (const saveId of Object.keys(saveList ?? {})) {
+      const entry = saveList[saveId]
+      if (!entry) continue
+      let bytes = 0
+      try {
+        if (entry.filePath && (await fse.pathExists(entry.filePath))) {
+          bytes = (await fse.stat(entry.filePath)).size
+        } else {
+          // 回退：从数据库附件取（老数据）
+          const buffer = await GameDBManager.getGameSave(gameId, saveId, 'buffer')
+          bytes = buffer ? buffer.length : 0
+        }
+      } catch {
+        bytes = 0
+      }
+      if (bytes > 0) {
+        const sizeMB = +(bytes / 1048576).toFixed(2)
+        entry.sizeMB = sizeMB
+        sizes[saveId] = sizeMB
+      }
+    }
+
+    await GameDBManager.setGameValue(gameId, 'save.saveList', saveList)
+    return sizes
+  })
+
   ipcManager.handle('game:delete-save', async (_, gameId: string, saveId: string) => {
     await deleteGameSave(gameId, saveId)
   })
@@ -80,6 +115,22 @@ export function setupGameIPC(): void {
 
   ipcManager.handle('game:get-memory-cover-path', async (_, gameId: string, memoryId: string) => {
     return await GameDBManager.getGameMemoryImage(gameId, memoryId, 'file')
+  })
+
+  // 打开回忆图片的「本地文件」：图片存在数据库附件里，
+  // 这里导出到持久目录（userData/exports/memories）后再定位，而不是用临时目录
+  ipcManager.handle('game:show-memory-in-folder', async (_, gameId: string, memoryId: string) => {
+    try {
+      const buffer = await GameDBManager.getGameMemoryImage(gameId, memoryId, 'buffer')
+      if (!buffer) return
+      const dir = getAppExportPath(join('memories', gameId))
+      await fse.ensureDir(dir)
+      const file = join(dir, `${memoryId}.webp`)
+      await fse.writeFile(file, buffer)
+      shell.showItemInFolder(file)
+    } catch {
+      // 忽略：图片可能已被删除
+    }
   })
 
   ipcManager.handle('game:add-memory-inline-image', async (_, gameId: string, imgPath: string) => {

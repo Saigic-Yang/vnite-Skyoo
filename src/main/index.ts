@@ -12,7 +12,7 @@ import {
   setupScreenshotService,
   setupTempDirectory
 } from '~/features/system'
-import icon from '../../resources/icon.png?asset'
+import headIcon from '../../resources/head-256.png?asset'
 import { ipcManager, setupIPC } from './core/ipc'
 import { nativeCleanup, setupNativeModule } from './core/native'
 import { AuthManager, handleAuthCallback } from './features/account'
@@ -122,7 +122,8 @@ function createWindow(): void {
     show: false,
     frame: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' || is.dev ? { icon } : {}),
+    // 任务栏 / 窗口图标统一使用「龙头特写」，与托盘保持一致
+    icon: headIcon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

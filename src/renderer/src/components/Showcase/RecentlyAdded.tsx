@@ -2,20 +2,20 @@ import { SeparatorDashed } from '@ui/separator-dashed'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useConfigState } from '~/hooks'
-import { useLibraryStore } from '~/pages/Library/store'
+import { useEffectiveLibraryBarWidth } from '~/hooks/useShowLibrarybar'
 import { useGameRegistry, useVisibleGameIds } from '~/stores/game'
 import { getRecentlyAddedGames } from '~/stores/game/recordUtils'
 import { cn } from '~/utils'
 import { GamePoster } from './posters/GamePoster'
 import { TwoRowStrip } from './TwoRowStrip'
 
-const COUNT = 14
+const COUNT = 18
 
 /** 最近入库：固定显示最近添加的 14 个游戏，两行 + 可拖动导航条 */
 export function RecentlyAdded(): React.JSX.Element {
   const visibleGameIds = useVisibleGameIds()
   const gameIds = useGameRegistry((state) => state.gameIds)
-  const libraryBarWidth = useLibraryStore((state) => state.libraryBarWidth)
+  const libraryBarWidth = useEffectiveLibraryBarWidth()
   const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
   const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
   const { t } = useTranslation('game')
@@ -46,8 +46,13 @@ export function RecentlyAdded(): React.JSX.Element {
           {t('showcase.recentlyAdded.empty')}
         </div>
       ) : (
-        // itemGap 与「我的收藏」保持一致（32），保证两处第 N 张卡在同一条竖线上
-        <TwoRowStrip ids={ids} renderItem={(id) => <GamePoster gameId={id} />} />
+        // 固定两行（18 个 → 每行 9 个），间距与最爱玩/未收藏一致
+        <TwoRowStrip
+          ids={ids}
+          itemGap={20}
+          rowGap={20}
+          renderItem={(id) => <GamePoster gameId={id} />}
+        />
       )}
     </div>
   )

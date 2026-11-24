@@ -7,6 +7,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger
 } from '@ui/context-menu'
+import { ipcManager } from '~/app/ipc'
 import type { MemoryViewItem, MemoryViewRuntime } from '../type'
 import { exportAllMemories } from '../utils'
 
@@ -34,6 +35,13 @@ export function MemoryItemContextMenu({
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={() => void exportAllMemories(runtime.gameId)}>
           {t('detail.memory.export.all')}
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() =>
+            void ipcManager.invoke('game:show-memory-in-folder', runtime.gameId, item.memoryId)
+          }
+        >
+          打开本地文件
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={() => void runtime.deleteMemory(item.memoryId)}>

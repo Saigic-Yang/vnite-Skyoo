@@ -30,8 +30,9 @@ import { ToolboxPopover } from './Toolbox/ToolboxPopover'
 const MIN_WIDTH = 56
 const MAX_WIDTH = 220
 /** 文字完全显现的宽度，以及开始淡入的宽度 */
-const LABEL_FADE_START = 96
-const LABEL_FADE_END = 156
+// 提前完成淡入：竖条拖到文字旁边时就完全显示
+const LABEL_FADE_START = 76
+const LABEL_FADE_END = 112
 
 const NAV_ITEMS = [
   {

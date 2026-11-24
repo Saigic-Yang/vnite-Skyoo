@@ -49,7 +49,8 @@ export function formatStorageSize(bytes: number, emptyText = '', precision = 2):
   if (bytes < 0) return emptyText
   if (bytes === 0) return '0 B'
 
-  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB']
+  // 用 Windows 习惯的 KB/MB/GB 标签（数值仍按 1024 进位，与资源管理器一致）
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let i = 0
   let size = bytes
 

@@ -17,7 +17,7 @@ export async function exportReport(request: ReportExportRequest): Promise<Report
     `${request.reportType}-${timestamp}.${request.format}`
   )
 
-  const content = request.format === 'html' ? request.html : request.json
+  const content = 'html' in request ? request.html : request.json
   await writeFile(outputFile, content, 'utf8')
   return { outputFile }
 }

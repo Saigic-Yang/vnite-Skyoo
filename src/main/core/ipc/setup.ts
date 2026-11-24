@@ -6,6 +6,7 @@ import { setupImporterIPC } from '~/features/importer'
 import { setupLauncherIPC } from '~/features/launcher'
 import { setupNativeMonitorIPC } from '~/features/monitor'
 import { setupRatingsIPC } from '~/features/ratings'
+import { setupSavesIPC } from '~/features/saves'
 import { setupScraperIPC } from '~/features/scraper'
 import { setupSystemIPC } from '~/features/system'
 import { setupThemeIPC } from '~/features/theme'
@@ -25,6 +26,7 @@ export function setupIPC(): void {
   setupLauncherIPC()
   setupScraperIPC()
   setupRatingsIPC()
+  setupSavesIPC()
   setupSystemIPC()
   setupThemeIPC()
   setupToolboxIPC()

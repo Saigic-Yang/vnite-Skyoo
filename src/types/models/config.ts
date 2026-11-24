@@ -138,6 +138,10 @@ export interface configDocs {
       showCover: boolean
       showLogo: boolean
       contentTopPadding: number
+      /** 游戏退出后自动备份存档（默认关闭） */
+      autoBackupSaves: boolean
+      /** 每个游戏保留的备份份数 */
+      saveBackupLimit: number
     }
     memory: {
       sortOrder: 'asc' | 'desc'
@@ -483,7 +487,9 @@ export const DEFAULT_CONFIG_VALUES: Readonly<configDocs> = {
       headerImageMaxHeight: 55, // in vh
       showCover: true,
       showLogo: true,
-      contentTopPadding: 40 // in vh
+      contentTopPadding: 40, // in vh
+      autoBackupSaves: false,
+      saveBackupLimit: 5
     },
     memory: {
       sortOrder: 'desc',

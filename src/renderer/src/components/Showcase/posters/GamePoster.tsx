@@ -67,7 +67,9 @@ export function GamePoster({
   position = 'center',
   showRemoveFromRecent = false,
   inViewGames = [], // TODO: Support shift+click selection
-  disableContextMenu = false
+  disableContextMenu = false,
+  onOpenDetail,
+  fluid = false
 }: {
   gameId: string
   groupId?: string
@@ -78,6 +80,10 @@ export function GamePoster({
   showRemoveFromRecent?: boolean
   inViewGames?: string[]
   disableContextMenu?: boolean
+  /** 提供后点击卡片不再跳转路由，改为回调打开悬浮详情 */
+  onOpenDetail?: (gameId: string) => void
+  /** 宽度自适应父容器（响应式网格用） */
+  fluid?: boolean
 }): React.JSX.Element {
   const navigate = useNavigate()
   const gameData = useGameRegistry((state) => state.gameMetaIndex[gameId])
@@ -154,6 +160,8 @@ export function GamePoster({
   const handleGameClick = (e: React.MouseEvent): void => {
     if (e.ctrlKey || e.metaKey) {
       handleSelect(e)
+    } else if (onOpenDetail) {
+      onOpenDetail(gameId)
     } else {
       navigateToGame(navigate, gameId, groupId || 'all')
     }
@@ -256,13 +264,13 @@ export function GamePoster({
               blurType="poster"
               alt={gameId}
               className={cn(
-                'w-[148px] aspect-[2/3] cursor-pointer select-none object-cover rounded-lg',
+                fluid ? 'w-full aspect-[2/3] cursor-pointer select-none object-cover rounded-lg' : 'w-[148px] aspect-[2/3] cursor-pointer select-none object-cover rounded-lg',
                 className
               )}
               fallback={
                 <div
                   className={cn(
-                    'w-[148px] aspect-[2/3] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
+                    fluid ? 'w-full aspect-[2/3] cursor-pointer object-cover flex items-center justify-center bg-muted/50' : 'w-[148px] aspect-[2/3] cursor-pointer object-cover flex items-center justify-center bg-muted/50',
                     className
                   )}
                   onClick={() => navigateToGame(navigate, gameId, groupId || 'all')}
@@ -333,7 +341,12 @@ export function GamePoster({
           </div>
         </div>
 
-        <div className="text-xs text-foreground truncate cursor-pointer select-none hover:underline w-[148px] text-center decoration-foreground">
+        <div
+          className={cn(
+            'text-xs text-foreground truncate cursor-pointer select-none hover:underline text-center decoration-foreground',
+            fluid ? 'w-full' : 'w-[148px]'
+          )}
+        >
           {nsfw && nsfwBlurLevel >= NSFWBlurLevel.BlurImageAndTitle ? (
             <>
               <span className="block group-hover:hidden truncate">{obfuscatedName}</span>

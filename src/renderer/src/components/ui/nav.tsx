@@ -43,7 +43,9 @@ const Nav = forwardRef<HTMLAnchorElement, NavProps>(
         ref={ref}
         className={cn(navVariants({ variant, size, className }))}
         activeProps={{
-          className: '!bg-accent/[calc(var(--glass-opacity)*2)] !text-accent-foreground !shadow-sm'
+          // 激活态：亮绿色背景（与图标形成明显区分）
+          className:
+            '!bg-emerald-500/25 !text-emerald-300 !shadow-sm ring-1 ring-emerald-400/40'
         }}
         {...props}
       >

@@ -5,6 +5,22 @@ import {
   EventHistoryQuery,
   EventType
 } from '@appTypes/event'
+
+/** 存档路径候选 */
+export interface SaveCandidateInfo {
+  path: string
+  score: number
+  confidence: 'high' | 'medium' | 'low'
+  reasons: string[]
+  fileCount: number
+  saveFileCount: number
+  sizeMB: number
+  updatedAt: string
+  exists: boolean
+  manual?: boolean
+}
+
+
 import { ReportExportRequest, ReportExportResponse } from '@appTypes/report'
 import { BatchUpdateGameMetadataProgress, OverallScanProgress } from '@appTypes/utils'
 import { ProgressInfo, UpdateCheckResult } from 'electron-updater'
@@ -119,6 +135,29 @@ type MainIpcEvents =
       'app:is-portable-mode': () => boolean
       'app:is-updater-enabled': () => boolean
       'ratings:refresh': (gameId: string) => GameRatings | null
+  'saves:detect': (
+    gameId: string,
+    forceReindex?: boolean
+  ) => { candidates: SaveCandidateInfo[]; chosen: string[]; manual: string[] }
+  'saves:set-paths': (gameId: string, paths: string[]) => void
+  'saves:search-online': (gameId: string) => {
+    status: 'ok' | 'not-found' | 'network' | 'no-query'
+    message: string
+    results: { source: string; title: string; url: string; paths: string[] }[]
+    links: { source: string; title: string; url: string }[]
+  }
+  'system:open-external': (url: string) => void
+  'saves:search-by-keyword': (
+    gameId: string,
+    keyword: string
+  ) => {
+    candidates: SaveCandidateInfo[]
+    engine: 'everything' | 'walk'
+    hasEverything: boolean
+    elapsedMs: number
+  }
+  'saves:show-backup': (gameId: string, saveId: string) => void
+  'system:show-item-in-folder': (filePath: string) => void
       'app:switch-database-mode': () => void
 
       'utils:open-database-path-in-explorer': () => void
@@ -179,6 +218,7 @@ type MainIpcEvents =
       // Game save management events
       'game:search-save-paths': (gameId: string) => string[]
       'game:backup-save': (gameId: string) => string
+      'game:refresh-save-sizes': (gameId: string) => Record<string, number>
       'game:restore-save': (gameId: string, saveId: string, skipIfTargetNewer?: boolean) => void
       'game:delete-save': (gameId: string, saveId: string) => void
 
@@ -200,6 +240,7 @@ type MainIpcEvents =
       'game:get-media-path': (gameId: string, type: GameMediaType) => string | null
       'game:remove-media': (gameId: string, type: GameMediaType) => void
       'game:get-memory-cover-path': (gameId: string, memoryId: string) => string | null
+      'game:show-memory-in-folder': (gameId: string, memoryId: string) => void
       'game:get-memory-masonry-items': (
         gameId: string,
         memoryIds: string[]

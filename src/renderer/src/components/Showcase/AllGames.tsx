@@ -1,9 +1,14 @@
 import { GAME_SORT_FIELDS } from '@appTypes/models'
 import { observeElementOffset, useVirtualizer, type Virtualizer } from '@tanstack/react-virtual'
 import { SeparatorDashed } from '@ui/separator-dashed'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GameNavCM } from '~/components/contextMenu/GameNavCM'
+import { useWindowDragScroll } from '~/hooks/useDragScroll'
+import { useEffectiveLibraryBarWidth } from '~/hooks/useShowLibrarybar'
+import { useInlineDetailStore } from '~/stores/inlineDetailStore'
+import { InlineGameDetail } from './InlineGameDetail'
+import { ScrollNavButtons } from './ScrollNavButtons'
 import { AddCollectionDialog } from '~/components/dialog/AddCollectionDialog'
 import { PlayTimeEditorDialog } from '~/components/Game/Config/ManageMenu/PlayTimeEditorDialog'
 import { GamePropertiesDialog } from '~/components/Game/Config/Properties'
@@ -86,6 +91,17 @@ export function AllGames(): React.JSX.Element {
   const measureFrameRef = useRef<number | null>(null)
   const pendingContextMenuGameIdRef = useRef<string | null>(null)
   const gridOuterRef = useRef<HTMLDivElement>(null)
+  useWindowDragScroll(gridOuterRef, 'y')
+
+  // 内联详情（不跳页）
+  const inlineGameId = useInlineDetailStore((state) => state.gameId)
+  const setInlineGameId = useInlineDetailStore((state) => state.setGameId)
+  useEffect(() => () => setInlineGameId(null), [setInlineGameId])
+
+  // 详情面板需要避开左侧列表，按可视区域定位
+  const libraryBarWidth = useEffectiveLibraryBarWidth()
+  const [configSidebarWidth] = useConfigState('appearances.sidebar.width')
+  const sidebarWidth = Math.max(56, Number(configSidebarWidth) || 56)
   const rowsHostRef = useRef<HTMLDivElement>(null)
   const measureGridRef = useRef<() => void>(() => {})
 
@@ -195,7 +211,7 @@ export function AllGames(): React.JSX.Element {
   }
 
   return (
-    <div className={cn('w-full flex flex-col gap-1')}>
+    <div className={cn('relative w-full flex flex-col gap-1')}>
       <div className={cn('flex flex-row items-center gap-5 justify-center px-5')}>
         <div className={cn('flex flex-row gap-5 items-center justify-center')}>
           <div className={cn('text-accent-foreground select-none flex-shrink-0')}>
@@ -240,7 +256,10 @@ export function AllGames(): React.JSX.Element {
 
       {/* Game List Container */}
       {/* 上方留出放大空间，避免第一行卡片悬停时被裁掉 */}
-      <div ref={gridOuterRef} className={cn('w-full pt-10 pl-6 pr-6 pb-6')}>
+      <div
+        ref={gridOuterRef}
+        className={cn('w-full pt-10 pl-6 pr-6 pb-6 cursor-grab active:cursor-grabbing')}
+      >
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
@@ -283,7 +302,11 @@ export function AllGames(): React.JSX.Element {
                             setContextMenuGameId(gameId)
                           }}
                         >
-                          <GamePoster gameId={gameId} disableContextMenu={true} />
+                          <GamePoster
+                            gameId={gameId}
+                            disableContextMenu={true}
+                            onOpenDetail={(id) => setInlineGameId(id)}
+                          />
                         </div>
                       ))}
                       {Array.from({ length: fillerCount }, (_, fillerIndex) => (
@@ -350,6 +373,24 @@ export function AllGames(): React.JSX.Element {
           setIsOpen={setIsStorageSizeDialogOpen}
         />
       )}
+      {/* 游戏详情：用 fixed 锁定到右侧网格的可视区域。
+          （用 absolute 会相对整个虚拟列表内容高度，导致面板极高、渐变跑到屏幕外） */}
+      {inlineGameId && (
+        <div
+          className="fixed z-30 overflow-hidden"
+          style={{
+            left: `${libraryBarWidth + sidebarWidth + 1}px`,
+            top: '50px',
+            right: 0,
+            bottom: 0
+          }}
+        >
+          <InlineGameDetail gameId={inlineGameId} onClose={() => setInlineGameId(null)} />
+        </div>
+      )}
+
+      {/* 一键到顶 / 到底 */}
+      <ScrollNavButtons anchorRef={gridOuterRef} />
     </div>
   )
 }
